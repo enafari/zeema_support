@@ -666,9 +666,10 @@
                     
                                                 this.addMessage(message, 'bot');
                             
-                                                // Add menu for all invested plans using plan titles
-                    const planSymbol = result.data.map(item => item['plans - plan_id → persian_confirmed_symbol'] || 'نامشخص');
-                    this.addPlansMenu(planSymbol);
+                                                // Add menu for all invested plans using plan titles and plan IDs
+                    const planTitles = result.data.map(item => item['plans - plan_id → title'] || 'نامشخص');
+                    const planIds = result.data.map(item => item['plans - plan_id'] || item['transactions → plan_id'] || 'نامشخص');
+                    this.addPlansMenu(planTitles, planIds);
                             
                         } else {
                             this.addMessage('❌ اطلاعاتی برای این کد ملی یافت نشد. لطفا با پشتیبانی تماس بگیرید.', 'bot');
@@ -684,26 +685,14 @@
                         this.addReturnToMainMenu();
                     }
                 } else {
-                    console.log('API service not available, using mock response');
-                    // Mock response if API is not available
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    
+                    console.log('API service not available');
                     // Remove loading animation
                     if (loadingElement) {
                         loadingElement.remove();
                     }
                     
-                    if (this.selectedOption === "۱. پیگیری پرداخت سود طرح") {
-                        this.addMessage('📊 اطلاعات پیگیری پرداخت سود طرح:\n\n👤 نام: کاربر نمونه\n📈 تعداد طرح‌ها: 2\n\n📋 لیست طرح‌های سرمایه‌گذاری شده:\n1. طرح سرمایه‌گذاری طلا\n2. طرح سرمایه‌گذاری ارز', 'bot');
-                        this.addReturnToMainMenu();
-                    } else if (this.selectedOption === "۲. اطلاعات طرح های سرمایه گذاری شده من") {
-                        // Create mock template message
-                        const message = `کاربر نمونه عزیز شما تا الان روی طرح های زیر سرمایه گذاری کرده اید:\n\n🟠 نام طرح: تامین مالی سرمایه در گردش خرید و نوسازی تجهیزات پزشکی\n🔸 نماد طرح: زیویتایک\n🔸 مبلغ سرمایه گذاری شما: 249,000,000 تومان\n\n🟠 نام طرح: طرح سرمایه گذاری قهوه\n🔸 نماد طرح: زیماقهوه\n🔸 مبلغ سرمایه گذاری شما: 100,000,000 تومان\n\nجهت بررسی اطلاعات هر طرح روی آن کلیک کنید`;
-                        this.addMessage(message, 'bot');
-                        
-                        // Add mock plans menu
-                        this.addPlansMenu(['تامین مالی سرمایه در گردش خرید و نوسازی تجهیزات پزشکی', 'طرح سرمایه گذاری قهوه']);
-                    }
+                    this.addMessage('❌ سرویس API در دسترس نیست. لطفا با پشتیبانی تماس بگیرید.', 'bot');
+                    this.addReturnToMainMenu();
                 }
                 
                 // Reset state
@@ -722,7 +711,7 @@
             }
         }
 
-        addPlansMenu(plans) {
+        addPlansMenu(plans, planIds) {
             const menuDiv = document.createElement('div');
             menuDiv.className = 'zeema-plans-menu';
             
@@ -730,7 +719,8 @@
                 const menuItem = document.createElement('div');
                 menuItem.className = 'zeema-plan-item';
                 menuItem.textContent = `${index + 1}. ${plan}`;
-                menuItem.addEventListener('click', () => this.handlePlanClick(plan));
+                const planId = planIds && planIds[index] ? planIds[index] : plan;
+                menuItem.addEventListener('click', () => this.handlePlanClick(plan, planId));
                 menuDiv.appendChild(menuItem);
             });
 
@@ -745,7 +735,7 @@
             this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
         }
 
-        handlePlanClick(planName) {
+        async handlePlanClick(planName, planId) {
             this.addMessage(`${planName}`, 'user');
             
             // Remove existing plan menu
@@ -754,11 +744,156 @@
                 existingMenu.remove();
             }
 
-            // Add plan details message
+            // Show loading message
+            const loadingMessage = this.addMessage(`📋 اطلاعات طرح ${planName}:\n\n🔍 در حال بارگذاری جزئیات...`, 'bot');
+            
+            try {
+                // Call get_plan_phase API if available
+                if (this.apiService && typeof this.apiService.get_plan_phase === 'function') {
+                    console.log('Calling get_plan_phase API for plan ID:', planId);
+                    const result = await this.apiService.get_plan_phase(planId);
+                    
+                    // Remove loading message
+                    if (loadingMessage) {
+                        loadingMessage.remove();
+                    }
+                    
+                    if (result.success && result.data && result.data.length > 0) {
+                        // Format the plan phase data
+                        const formattedMessage = window.ZeemaUtils ? 
+                            window.ZeemaUtils.formatPlanPhaseMessage(result.data) :
+                            this.formatPlanPhaseMessage(result.data);
+                        
+                        this.addMessage(formattedMessage, 'bot');
+                        
+                        // Add menu for plan phases using titles
+                        const phaseTitles = result.data.map(phase => 
+                            phase.title || phase.phase_name || 'نامشخص'
+                        );
+                        this.addPhaseMenu(phaseTitles);
+                        
+                    } else {
+                        this.addMessage('❌ اطلاعاتی برای این طرح یافت نشد.', 'bot');
+                        this.addReturnToMainMenu();
+                    }
+                } else {
+                    // API service not available
+                    if (loadingMessage) {
+                        loadingMessage.remove();
+                    }
+                    
+                    this.addMessage('❌ سرویس API در دسترس نیست. لطفا با پشتیبانی تماس بگیرید.', 'bot');
+                    this.addReturnToMainMenu();
+                }
+                
+            } catch (error) {
+                console.error('Error handling plan click:', error);
+                
+                // Remove loading message
+                if (loadingMessage) {
+                    loadingMessage.remove();
+                }
+                
+                this.addMessage('❌ خطا در دریافت اطلاعات طرح. لطفا دوباره تلاش کنید.', 'bot');
+                this.addReturnToMainMenu();
+            }
+        }
+
+        addPhaseMenu(phases) {
+            const menuDiv = document.createElement('div');
+            menuDiv.className = 'zeema-plans-menu';
+            
+            phases.forEach((phase, index) => {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'zeema-plan-item';
+                menuItem.textContent = `${index + 1}. ${phase}`;
+                menuItem.addEventListener('click', () => this.handlePhaseClick(phase));
+                menuDiv.appendChild(menuItem);
+            });
+
+            // Add return to main menu item
+            const returnMenuItem = document.createElement('div');
+            returnMenuItem.className = 'zeema-menu-item zeema-return-menu';
+            returnMenuItem.textContent = 'بازگشت به منوی اصلی';
+            returnMenuItem.addEventListener('click', () => this.handleMenuClick('بازگشت به منوی اصلی'));
+            menuDiv.appendChild(returnMenuItem);
+
+            this.messagesContainer.appendChild(menuDiv);
+            this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+        }
+
+        handlePhaseClick(phaseName) {
+            this.addMessage(`${phaseName}`, 'user');
+            
+            // Remove existing phase menu
+            const existingMenu = this.messagesContainer.querySelector('.zeema-plans-menu');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+
+            // Add phase details message
             setTimeout(() => {
-                this.addMessage(`📋 اطلاعات طرح ${planName}:\n\n🔍 در حال بارگذاری جزئیات...`, 'bot');
+                this.addMessage(`📋 جزئیات ${phaseName}:\n\n🔍 در حال بارگذاری جزئیات تراکنش...`, 'bot');
                 this.addReturnToMainMenu();
             }, 500);
+        }
+
+        formatPlanPhaseMessage(planPhases) {
+            if (!planPhases || planPhases.length === 0) {
+                return 'هیچ مرحله‌ای برای این طرح یافت نشد.';
+            }
+            
+            let message = 'جزئیات پرداخت سود طرح:\n\n';
+            
+            planPhases.forEach((phase, index) => {
+                const title = phase.title || phase.phase_name || 'نامشخص';
+                const startDate = phase.start_date ? this.convertToSolarCalendar(phase.start_date) : 'نامشخص';
+                const percent = phase.percent || phase.percentage || 'نامشخص';
+                const status = this.mapStatusToPersian(phase.status);
+                
+                message += `⚪️ ${title}\n`;
+                message += `▪️ تاریخ: ${startDate}\n`;
+                message += `▪️ میزان سود: ${percent} درصد\n`;
+                message += `▪️ وضعیت: ${status}\n\n`;
+            });
+            
+            message += 'اگر تاریخ واریز سودتان امروز است پرداختتان در حال پردازش است و چون شبا میشود طی ۲۴ ساعت آینده به حسابتان واریز خواهد شد.\n';
+            message += 'جهت بررسی جزئیات تراکنش هر مرحله سود روی آن کلیک کنید';
+            
+            return message;
+        }
+
+        convertToSolarCalendar(gregorianDate) {
+            try {
+                const date = new Date(gregorianDate);
+                if (isNaN(date.getTime())) {
+                    return 'نامشخص';
+                }
+                
+                // Simple conversion - for production use a proper Persian calendar library
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1;
+                const day = date.getDate();
+                
+                // Convert to Persian year (approximate)
+                const persianYear = year - 621;
+                
+                // Format as YYYY/MM/DD
+                return `${persianYear}/${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}`;
+            } catch (error) {
+                console.error('Error converting date to Solar calendar:', error);
+                return 'نامشخص';
+            }
+        }
+
+        mapStatusToPersian(status) {
+            const statusMap = {
+                'done': 'انجام شده',
+                'pending': 'در انتظار',
+                'in_progress': 'در حال انجام'
+            };
+            
+            return statusMap[status] || status || 'نامشخص';
         }
     }
 

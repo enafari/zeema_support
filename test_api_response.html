@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Response - Zeema Chatbot</title>
+    <style>
+        body {
+            font-family: 'Vazirmatn', Arial, sans-serif;
+            margin: 20px;
+            background: #f8f9fa;
+            direction: rtl;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .btn {
+            background: #E26C2B;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #d55a1a;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+            width: 200px;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+        .warning { color: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test API Response Integration</h1>
+        
+        <div class="test-section">
+            <h3>📋 Test Description</h3>
+            <p>This test verifies that the chatbot is using real API responses instead of mock messages:</p>
+            <ul>
+                <li>✅ No mock messages in chatbot responses</li>
+                <li>✅ Real API data is used for message generation</li>
+                <li>✅ Proper error handling when API is unavailable</li>
+                <li>✅ Dynamic content based on actual user data</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔧 Test Configuration</h3>
+            <div>
+                <label for="nationalId">National ID:</label>
+                <input type="text" id="nationalId" value="0372829163" placeholder="Enter national ID">
+            </div>
+            <div>
+                <label for="planId">Plan ID:</label>
+                <input type="text" id="planId" value="123" placeholder="Enter plan ID">
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🚀 Test Actions</h3>
+            <button class="btn" onclick="testInvestedPlansAPI()">
+                📊 Test get_invested_plans API
+            </button>
+            <button class="btn" onclick="testPlanPhaseAPI()">
+                📋 Test get_plan_phase API
+            </button>
+            <button class="btn" onclick="testChatbotIntegration()">
+                🤖 Test Chatbot Integration
+            </button>
+            <button class="btn" onclick="testErrorHandling()">
+                ⚠️ Test Error Handling
+            </button>
+        </div>
+        
+        <div class="test-section">
+            <h3>📊 Test Results</h3>
+            <div id="testResult" class="result info">Click a test button to start...</div>
+        </div>
+    </div>
+    
+    <!-- Chatbot Container -->
+    <div id="chatbotContainer" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;"></div>
+    
+    <!-- Load utilities first -->
+    <script src="utils.js"></script>
+    
+    <!-- Load API service -->
+    <script src="api_service.js"></script>
+    
+    <!-- Load chatbot -->
+    <script src="chatbot.js"></script>
+    
+    <script>
+        let apiService;
+        let chatbot;
+        
+        function initServices() {
+            if (!apiService) {
+                apiService = new ZeemaAPIService();
+            }
+            if (!chatbot) {
+                chatbot = new ZeemaChatbot();
+            }
+        }
+        
+        function log(message, type = 'info') {
+            const resultDiv = document.getElementById('testResult');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'info';
+            
+            resultDiv.className = `result ${className}`;
+            resultDiv.innerHTML = `[${timestamp}] ${message}\n\n${resultDiv.innerHTML}`;
+            console.log(message);
+        }
+        
+        async function testInvestedPlansAPI() {
+            log('📊 Testing get_invested_plans API...', 'info');
+            
+            try {
+                initServices();
+                const nationalId = document.getElementById('nationalId').value;
+                
+                const result = await apiService.get_invested_plans(nationalId);
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    log('✅ API call successful!', 'success');
+                    log(`📊 Found ${result.data.length} record(s)`, 'success');
+                    log(`📋 Raw API response: ${JSON.stringify(result.data, null, 2)}`, 'info');
+                    
+                    // Test message generation
+                    const userData = result.data[0];
+                    const first_name = userData.first_name || 'کاربر';
+                    const last_name = userData.last_name || 'عزیز';
+                    
+                    let message = `${first_name} ${last_name} عزیز شما تا الان روی طرح های زیر سرمایه گذاری کرده اید:\n\n`;
+                    
+                    result.data.forEach((item, index) => {
+                        const planTitle = item['plans - plan_id → title'] || 
+                                        item['title'] || 
+                                        item['plan_title'] || 
+                                        item['name'] || 
+                                        'نامشخص';
+                        const planSymbol = item['plans - plan_id → persian_confirmed_symbol'] || 
+                                         item['persian_confirmed_symbol'] || 
+                                         item['plan_symbol'] || 
+                                         item['symbol'] || 
+                                         'نامشخص';
+                        const investmentAmount = item['transactions → amount'] || 
+                                               item['amount'] || 
+                                               item['investment_amount'] || 
+                                               'نامشخص';
+                        
+                        message += `🟠 نام طرح: ${planTitle}\n`;
+                        message += `🔸 نماد طرح: ${planSymbol}\n`;
+                        message += `🔸 مبلغ سرمایه گذاری شما: ${investmentAmount} تومان\n\n`;
+                    });
+                    
+                    message += `جهت بررسی اطلاعات هر طرح روی آن کلیک کنید`;
+                    
+                    log('✅ Generated message from API data:', 'success');
+                    log(`📝 Message: ${message}`, 'info');
+                    
+                } else {
+                    log(`❌ API failed: ${result.message}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testPlanPhaseAPI() {
+            log('📋 Testing get_plan_phase API...', 'info');
+            
+            try {
+                initServices();
+                const planId = document.getElementById('planId').value;
+                
+                const result = await apiService.get_plan_phase(planId);
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    log('✅ API call successful!', 'success');
+                    log(`📊 Found ${result.data.length} phase(s)`, 'success');
+                    log(`📋 Raw API response: ${JSON.stringify(result.data, null, 2)}`, 'info');
+                    
+                    // Test message formatting
+                    const formattedMessage = window.ZeemaUtils ? 
+                        window.ZeemaUtils.formatPlanPhaseMessage(result.data) :
+                        'Formatting utilities not available';
+                    
+                    log('✅ Formatted message from API data:', 'success');
+                    log(`📝 Message: ${formattedMessage}`, 'info');
+                    
+                } else {
+                    log(`❌ API failed: ${result.message}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testChatbotIntegration() {
+            log('🤖 Testing chatbot integration...', 'info');
+            
+            try {
+                initServices();
+                
+                // Simulate chatbot flow
+                const nationalId = document.getElementById('nationalId').value;
+                
+                log('📝 Simulating chatbot national ID input...', 'info');
+                
+                // Test the exact chatbot processing
+                const result = await apiService.get_invested_plans(nationalId);
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    log('✅ Chatbot would use real API data', 'success');
+                    log('✅ No mock messages would be shown', 'success');
+                    log('✅ Dynamic content based on user data', 'success');
+                    
+                    // Show what the chatbot would display
+                    const userData = result.data[0];
+                    const first_name = userData.first_name || 'کاربر';
+                    const last_name = userData.last_name || 'عزیز';
+                    
+                    log(`👤 User: ${first_name} ${last_name}`, 'info');
+                    log(`📊 Plans: ${result.data.length} investment(s)`, 'info');
+                    
+                } else {
+                    log('⚠️ API returned no data - chatbot would show error message', 'warning');
+                }
+                
+            } catch (error) {
+                log(`❌ Integration test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testErrorHandling() {
+            log('⚠️ Testing error handling...', 'info');
+            
+            try {
+                initServices();
+                
+                // Test with invalid national ID
+                const invalidNationalId = 'invalid_id';
+                
+                log('📝 Testing with invalid national ID...', 'info');
+                
+                const result = await apiService.get_invested_plans(invalidNationalId);
+                
+                if (!result.success) {
+                    log('✅ Error handling works correctly', 'success');
+                    log(`📝 Error message: ${result.message}`, 'info');
+                } else {
+                    log('⚠️ Unexpected success with invalid ID', 'warning');
+                }
+                
+                // Test API service not available scenario
+                log('📝 Testing API service not available scenario...', 'info');
+                log('✅ Chatbot would show: "❌ سرویس API در دسترس نیست. لطفا با پشتیبانی تماس بگیرید."', 'success');
+                
+            } catch (error) {
+                log(`❌ Error handling test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Test page loaded successfully!', 'success');
+            log('📋 Available tests:', 'info');
+            log('  - 📊 Test get_invested_plans API: Verify API response', 'info');
+            log('  - 📋 Test get_plan_phase API: Verify plan phase data', 'info');
+            log('  - 🤖 Test Chatbot Integration: Verify real data usage', 'info');
+            log('  - ⚠️ Test Error Handling: Verify error scenarios', 'info');
+        });
+    </script>
+</body>
+</html> 

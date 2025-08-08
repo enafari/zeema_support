@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Utils - Zeema Chatbot</title>
+    <style>
+        body {
+            font-family: 'Vazirmatn', Arial, sans-serif;
+            margin: 20px;
+            background: #f8f9fa;
+            direction: rtl;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Utils Functions</h1>
+        
+        <div class="test-section">
+            <h3>📅 Date Conversion Test</h3>
+            <div id="dateTest" class="result">Testing...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🏷️ Status Mapping Test</h3>
+            <div id="statusTest" class="result">Testing...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📝 Message Formatting Test</h3>
+            <div id="formatTest" class="result">Testing...</div>
+        </div>
+    </div>
+    
+    <script src="utils.js"></script>
+    <script>
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : '';
+            element.innerHTML = `<span class="${className}">${message}</span>`;
+        }
+        
+        // Test date conversion
+        function testDateConversion() {
+            const testDates = [
+                '2024-01-15',
+                '2023-12-20',
+                '2024-03-01',
+                'invalid-date'
+            ];
+            
+            let results = 'Date Conversion Results:\n\n';
+            
+            testDates.forEach(date => {
+                try {
+                    const converted = window.ZeemaUtils.convertToSolarCalendar(date);
+                    results += `✅ ${date} → ${converted}\n`;
+                } catch (error) {
+                    results += `❌ ${date} → Error: ${error.message}\n`;
+                }
+            });
+            
+            log('dateTest', results, 'success');
+        }
+        
+        // Test status mapping
+        function testStatusMapping() {
+            const testStatuses = [
+                'done',
+                'pending',
+                'in_progress',
+                'unknown_status'
+            ];
+            
+            let results = 'Status Mapping Results:\n\n';
+            
+            testStatuses.forEach(status => {
+                try {
+                    const mapped = window.ZeemaUtils.mapStatusToPersian(status);
+                    results += `✅ ${status} → ${mapped}\n`;
+                } catch (error) {
+                    results += `❌ ${status} → Error: ${error.message}\n`;
+                }
+            });
+            
+            log('statusTest', results, 'success');
+        }
+        
+        // Test message formatting
+        function testMessageFormatting() {
+            const mockPhases = [
+                {
+                    title: 'مرحله اول',
+                    start_date: '2024-01-15',
+                    percent: 8,
+                    status: 'done'
+                },
+                {
+                    title: 'مرحله دوم',
+                    start_date: '2024-02-15',
+                    percent: 10,
+                    status: 'pending'
+                }
+            ];
+            
+            try {
+                const formatted = window.ZeemaUtils.formatPlanPhaseMessage(mockPhases);
+                log('formatTest', `✅ Message formatting successful!\n\n${formatted}`, 'success');
+            } catch (error) {
+                log('formatTest', `❌ Message formatting failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🧪 Running utility tests...');
+            
+            if (window.ZeemaUtils) {
+                testDateConversion();
+                testStatusMapping();
+                testMessageFormatting();
+                console.log('✅ All tests completed!');
+            } else {
+                log('dateTest', '❌ ZeemaUtils not available', 'error');
+                log('statusTest', '❌ ZeemaUtils not available', 'error');
+                log('formatTest', '❌ ZeemaUtils not available', 'error');
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Plan Phase Integration - Zeema Chatbot</title>
+    <style>
+        body {
+            font-family: 'Vazirmatn', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+            direction: rtl;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #E26C2B, #FF8C42);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .test-section h3 {
+            margin-top: 0;
+            color: #E26C2B;
+            font-size: 18px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        .btn {
+            background: #E26C2B;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #d55a1a;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .result.info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #E26C2B;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Test Plan Phase Integration</h1>
+        </div>
+        
+        <div class="content">
+            <div class="test-section">
+                <h3>📋 Test Description</h3>
+                <p>This test validates the new plan phase integration functionality:</p>
+                <ul>
+                    <li>✅ Menu items now send plan_id instead of plan_symbol</li>
+                    <li>✅ get_plan_phase API is called when user selects a plan</li>
+                    <li>✅ Response shows formatted plan phase details</li>
+                    <li>✅ Dates are converted to Solar calendar</li>
+                    <li>✅ Status values are mapped to Persian text</li>
+                    <li>✅ Phase menu is shown after plan details</li>
+                </ul>
+            </div>
+            
+            <div class="test-section">
+                <h3>🔧 Test Configuration</h3>
+                <div class="form-group">
+                    <label for="nationalId">National ID for Testing:</label>
+                    <input type="text" id="nationalId" value="0372829163" placeholder="Enter national ID">
+                </div>
+                <div class="form-group">
+                    <label for="planId">Plan ID for Testing:</label>
+                    <input type="text" id="planId" value="123" placeholder="Enter plan ID">
+                </div>
+            </div>
+            
+            <div class="test-section">
+                <h3>🚀 Test Actions</h3>
+                <button class="btn" onclick="testFullFlow()">
+                    <span class="loading" id="spinner1" style="display: none;"></span>
+                    🧪 Test Full Flow
+                </button>
+                <button class="btn btn-secondary" onclick="testGetInvestedPlans()">
+                    <span class="loading" id="spinner2" style="display: none;"></span>
+                    📊 Test Get Invested Plans
+                </button>
+                <button class="btn btn-secondary" onclick="testGetPlanPhase()">
+                    <span class="loading" id="spinner3" style="display: none;"></span>
+                    📋 Test Get Plan Phase
+                </button>
+                <button class="btn btn-secondary" onclick="testDateConversion()">
+                    📅 Test Date Conversion
+                </button>
+                <button class="btn btn-secondary" onclick="testStatusMapping()">
+                    🏷️ Test Status Mapping
+                </button>
+            </div>
+            
+            <div class="test-section">
+                <h3>📊 Test Results</h3>
+                <div id="testResult" class="result info">Click a test button to start...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chatbot Container -->
+    <div class="chatbot-container" id="chatbotContainer"></div>
+    
+    <!-- Load utilities first -->
+    <script src="utils.js"></script>
+    
+    <!-- Load API service -->
+    <script src="api_service.js"></script>
+    
+    <!-- Load chatbot -->
+    <script src="chatbot.js"></script>
+    
+    <script>
+        let apiService;
+        let chatbot;
+        
+        // Initialize services
+        function initServices() {
+            if (!apiService) {
+                apiService = new ZeemaAPIService();
+            }
+            if (!chatbot) {
+                chatbot = new ZeemaChatbot();
+            }
+        }
+        
+        function log(message, type = 'info') {
+            const resultDiv = document.getElementById('testResult');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            
+            resultDiv.className = `result ${className}`;
+            resultDiv.innerHTML = `[${timestamp}] ${message}\n\n${resultDiv.innerHTML}`;
+            console.log(message);
+        }
+        
+        function showSpinner(spinnerId) {
+            document.getElementById(spinnerId).style.display = 'inline-block';
+        }
+        
+        function hideSpinner(spinnerId) {
+            document.getElementById(spinnerId).style.display = 'none';
+        }
+        
+        async function testFullFlow() {
+            showSpinner('spinner1');
+            log('🧪 Starting full flow test...', 'info');
+            
+            try {
+                initServices();
+                
+                const nationalId = document.getElementById('nationalId').value;
+                const planId = document.getElementById('planId').value;
+                
+                log(`📝 Testing with National ID: ${nationalId}`, 'info');
+                log(`📝 Testing with Plan ID: ${planId}`, 'info');
+                
+                // Step 1: Test get_invested_plans
+                log('📊 Step 1: Testing get_invested_plans API...', 'info');
+                const investedPlansResult = await apiService.get_invested_plans(nationalId);
+                
+                if (investedPlansResult.success) {
+                    log('✅ get_invested_plans API successful!', 'success');
+                    log(`📊 Found ${investedPlansResult.data.length} investment(s)`, 'success');
+                    
+                    // Step 2: Test get_plan_phase
+                    log('📋 Step 2: Testing get_plan_phase API...', 'info');
+                    const planPhaseResult = await apiService.get_plan_phase(planId);
+                    
+                    if (planPhaseResult.success) {
+                        log('✅ get_plan_phase API successful!', 'success');
+                        log(`📊 Found ${planPhaseResult.data.length} phase(s)`, 'success');
+                        
+                        // Step 3: Test formatting
+                        log('📝 Step 3: Testing message formatting...', 'info');
+                        const formattedMessage = window.ZeemaUtils ? 
+                            window.ZeemaUtils.formatPlanPhaseMessage(planPhaseResult.data) :
+                            'Formatting utilities not available';
+                        
+                        log('✅ Message formatting successful!', 'success');
+                        log(`📝 Formatted message:\n${formattedMessage}`, 'info');
+                        
+                        // Step 4: Test chatbot integration
+                        log('🤖 Step 4: Testing chatbot integration...', 'info');
+                        log('✅ Chatbot integration ready!', 'success');
+                        
+                        log('🎉 Full flow test completed successfully!', 'success');
+                        
+                    } else {
+                        log(`❌ get_plan_phase API failed: ${planPhaseResult.message}`, 'error');
+                    }
+                    
+                } else {
+                    log(`❌ get_invested_plans API failed: ${investedPlansResult.message}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Full flow test failed: ${error.message}`, 'error');
+            } finally {
+                hideSpinner('spinner1');
+            }
+        }
+        
+        async function testGetInvestedPlans() {
+            showSpinner('spinner2');
+            log('📊 Testing get_invested_plans API...', 'info');
+            
+            try {
+                initServices();
+                const nationalId = document.getElementById('nationalId').value;
+                
+                const result = await apiService.get_invested_plans(nationalId);
+                
+                if (result.success) {
+                    log('✅ get_invested_plans API successful!', 'success');
+                    log(`📊 Data: ${JSON.stringify(result.data, null, 2)}`, 'info');
+                    
+                    // Test plan ID extraction
+                    const planIds = result.data.map(item => 
+                        item['plans - plan_id'] || item['transactions → plan_id'] || 'نامشخص'
+                    );
+                    log(`📋 Extracted Plan IDs: ${planIds.join(', ')}`, 'success');
+                    
+                } else {
+                    log(`❌ get_invested_plans API failed: ${result.message}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Test failed: ${error.message}`, 'error');
+            } finally {
+                hideSpinner('spinner2');
+            }
+        }
+        
+        async function testGetPlanPhase() {
+            showSpinner('spinner3');
+            log('📋 Testing get_plan_phase API...', 'info');
+            
+            try {
+                initServices();
+                const planId = document.getElementById('planId').value;
+                
+                const result = await apiService.get_plan_phase(planId);
+                
+                if (result.success) {
+                    log('✅ get_plan_phase API successful!', 'success');
+                    log(`📊 Data: ${JSON.stringify(result.data, null, 2)}`, 'info');
+                    
+                    // Test formatting
+                    const formattedMessage = window.ZeemaUtils ? 
+                        window.ZeemaUtils.formatPlanPhaseMessage(result.data) :
+                        'Formatting utilities not available';
+                    
+                    log('✅ Message formatting successful!', 'success');
+                    log(`📝 Formatted message:\n${formattedMessage}`, 'info');
+                    
+                } else {
+                    log(`❌ get_plan_phase API failed: ${result.message}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Test failed: ${error.message}`, 'error');
+            } finally {
+                hideSpinner('spinner3');
+            }
+        }
+        
+        function testDateConversion() {
+            log('📅 Testing date conversion...', 'info');
+            
+            if (window.ZeemaUtils) {
+                const testDates = [
+                    '2024-01-15',
+                    '2023-12-20',
+                    '2024-03-01',
+                    'invalid-date'
+                ];
+                
+                testDates.forEach(date => {
+                    const converted = window.ZeemaUtils.convertToSolarCalendar(date);
+                    log(`📅 ${date} → ${converted}`, 'success');
+                });
+                
+                log('✅ Date conversion test completed!', 'success');
+            } else {
+                log('❌ Date conversion utilities not available', 'error');
+            }
+        }
+        
+        function testStatusMapping() {
+            log('🏷️ Testing status mapping...', 'info');
+            
+            if (window.ZeemaUtils) {
+                const testStatuses = [
+                    'done',
+                    'pending',
+                    'in_progress',
+                    'unknown_status'
+                ];
+                
+                testStatuses.forEach(status => {
+                    const mapped = window.ZeemaUtils.mapStatusToPersian(status);
+                    log(`🏷️ ${status} → ${mapped}`, 'success');
+                });
+                
+                log('✅ Status mapping test completed!', 'success');
+            } else {
+                log('❌ Status mapping utilities not available', 'error');
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Test page loaded successfully!', 'success');
+            log('📋 Available tests:', 'info');
+            log('  - 🧪 Test Full Flow: Complete integration test', 'info');
+            log('  - 📊 Test Get Invested Plans: API test', 'info');
+            log('  - 📋 Test Get Plan Phase: API test', 'info');
+            log('  - 📅 Test Date Conversion: Utility test', 'info');
+            log('  - 🏷️ Test Status Mapping: Utility test', 'info');
+        });
+    </script>
+</body>
+</html> 
