@@ -655,8 +655,8 @@
                         const investmentAmount = item['transactions → amount'] || 'نامشخص';
                         
                         message += `🟠 نام طرح: ${planTitle}\n`;
-                        message += `\n 🔸 نماد طرح: ${planSymbol}\n`;
-                        message += `\n 🔸 مبلغ سرمایه گذاری شما: ${investmentAmount} تومان\n\n`;
+                        message += `🔸 نماد طرح: ${planSymbol}\n`;
+                        message += `🔸 مبلغ سرمایه گذاری شما: ${investmentAmount} تومان\n\n`;
                     });
                     
                     message += `جهت بررسی اطلاعات هر طرح روی آن کلیک کنید`;
@@ -664,8 +664,8 @@
                                                 this.addMessage(message, 'bot');
                             
                                                 // Add menu for all invested plans using plan titles
-                    const planTitles = result.data.map(item => item['plans - plan_id → title'] || 'نامشخص');
-                    this.addPlansMenu(planTitles);
+                    const planSymbol = result.data.map(item => item['plans - plan_id → persian_confirmed_symbol'] || 'نامشخص');
+                    this.addPlansMenu(planSymbol);
                             
                         } else {
                             this.addMessage('❌ اطلاعاتی برای این کد ملی یافت نشد. لطفا با پشتیبانی تماس بگیرید.', 'bot');
