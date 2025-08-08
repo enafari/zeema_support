@@ -798,18 +798,25 @@
                     });
                     
                     // Create the message template
-                    let message = `"${first_name}" "${last_name}" عزیز شما تا کنون روی طرح های زیر سرمایه گذاری کرده اید:\n\n`;
+                    let message = `${first_name} ${last_name} عزیز شما تا الان روی طرح های زیر سرمایه گذاری کرده اید:\n\n`;
                     
-                    investedPlans.forEach((planSymbol, index) => {
-                        message += `"${planSymbol}"\n`;
+                    result.data.forEach((item, index) => {
+                        const planTitle = item['plans - plan_id → title'] || 'نامشخص';
+                        const planSymbol = item['plans - plan_id → persian_confirmed_symbol'] || 'نامشخص';
+                        const investmentAmount = item['transactions → amount'] || 'نامشخص';
+                        
+                        message += `🟠 نام طرح: ${planTitle}\n`;
+                        message += `🔸 نماد طرح: ${planSymbol}\n`;
+                        message += `🔸 مبلغ سرمایه گذاری شما: ${investmentAmount} تومان\n\n`;
                     });
                     
-                    message += `\nجهت بررسی اطلاعات هر طرح روی آن کلیک کنید`;
+                    message += `جهت بررسی اطلاعات هر طرح روی آن کلیک کنید`;
                     
                     this.addMessage(message, 'bot');
                     
-                    // Add menu for all invested plans
-                    this.addPlansMenu(investedPlans);
+                    // Add menu for all invested plans using plan titles
+                    const planTitles = result.data.map(item => item['plans - plan_id → title'] || 'نامشخص');
+                    this.addPlansMenu(planTitles);
                     
                 } else {
                     this.addMessage('❌ اطلاعاتی برای این کد ملی یافت نشد. لطفا با پشتیبانی تماس بگیرید.', 'bot');
