@@ -667,9 +667,9 @@
                                                 this.addMessage(message, 'bot');
                             
                                                 // Add menu for all invested plans using plan titles and plan IDs
-                    const planTitles = result.data.map(item => item['plans - plan_id → title'] || 'نامشخص');
+                    const planSymbol = result.data.map(item => item['plans - plan_id → persian_confirmed_symbol'] || 'نامشخص');
                     const planIds = result.data.map(item => item['plans - plan_id'] || item['transactions → plan_id'] || 'نامشخص');
-                    this.addPlansMenu(planTitles, planIds);
+                    this.addPlansMenu(planSymbol, planIds);
                             
                         } else {
                             this.addMessage('❌ اطلاعاتی برای این کد ملی یافت نشد. لطفا با پشتیبانی تماس بگیرید.', 'bot');
