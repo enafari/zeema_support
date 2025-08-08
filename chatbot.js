@@ -655,8 +655,8 @@
                         const investmentAmount = item['transactions → amount'] || 'نامشخص';
                         
                         message += `🟠 نام طرح: ${planTitle}\n`;
-                        message += `🔸 نماد طرح: ${planSymbol}\n`;
-                        message += `🔸 مبلغ سرمایه گذاری شما: ${investmentAmount} تومان\n\n`;
+                        message += `\n 🔸 نماد طرح: ${planSymbol}\n`;
+                        message += `\n 🔸 مبلغ سرمایه گذاری شما: ${investmentAmount} تومان\n\n`;
                     });
                     
                     message += `جهت بررسی اطلاعات هر طرح روی آن کلیک کنید`;
