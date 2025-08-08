@@ -1,407 +1,836 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تست API طرح‌های سرمایه‌گذاری</title>
+    <title>Zeema API Documentation & Testing</title>
     <style>
-        body {
-            font-family: 'Tahoma', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        * {
             margin: 0;
-            padding: 20px;
-            min-height: 100vh;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
+            padding: 20px;
         }
-        
+
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
             text-align: center;
         }
-        
+
         .header h1 {
-            margin: 0;
             font-size: 2.5em;
-            font-weight: bold;
+            margin-bottom: 10px;
         }
-        
-        .content {
-            padding: 30px;
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
         }
-        
-        .section {
+
+        .api-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
             margin-bottom: 30px;
-            padding: 20px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .sidebar h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .api-list {
+            list-style: none;
+        }
+
+        .api-item {
+            margin-bottom: 15px;
+        }
+
+        .api-button {
+            width: 100%;
+            padding: 12px 15px;
             background: #f8f9fa;
-        }
-        
-        .section h2 {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s ease;
+            font-size: 14px;
             color: #495057;
-            margin-top: 0;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
         }
-        
-        input[type="text"] {
+
+        .api-button:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .api-button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .api-section {
+            display: none;
+        }
+
+        .api-section.active {
+            display: block;
+        }
+
+        .api-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .api-description {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+
+        .api-description h3 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .api-description p {
+            margin-bottom: 10px;
+            color: #6c757d;
+        }
+
+        .method-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #28a745;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .endpoint-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .form-group input {
             width: 100%;
             padding: 12px;
             border: 2px solid #e9ecef;
             border-radius: 8px;
             font-size: 16px;
-            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
         }
-        
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .test-buttons {
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 12px 20px;
             border: none;
-            padding: 12px 24px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
-            margin: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 10px;
+            margin-bottom: 10px;
             transition: all 0.3s ease;
         }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
         }
-        
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .result-container {
+            margin-top: 25px;
+        }
+
         .result {
-            margin-top: 15px;
-            padding: 15px;
-            border-radius: 8px;
-            white-space: pre-wrap;
+            padding: 20px;
+            border-radius: 10px;
             font-family: 'Courier New', monospace;
             font-size: 14px;
-            max-height: 400px;
+            white-space: pre-wrap;
+            max-height: 500px;
             overflow-y: auto;
+            display: none;
         }
-        
-        .loading {
+
+        .result.loading {
             background: #fff3cd;
             border: 2px solid #ffeaa7;
             color: #856404;
         }
-        
-        .success {
+
+        .result.success {
             background: #d4edda;
             border: 2px solid #c3e6cb;
             color: #155724;
         }
-        
-        .error {
+
+        .result.error {
             background: #f8d7da;
             border: 2px solid #f5c6cb;
             color: #721c24;
         }
-        
-        .info {
+
+        .result.info {
             background: #d1ecf1;
             border: 2px solid #bee5eb;
             color: #0c5460;
         }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
+
         .json-display {
             background: #f8f9fa;
             border: 1px solid #dee2e6;
             border-radius: 5px;
-            padding: 10px;
-            margin-top: 10px;
+            padding: 15px;
+            margin-top: 15px;
             font-family: 'Courier New', monospace;
             font-size: 12px;
             max-height: 300px;
             overflow-y: auto;
         }
-        
+
+        .stats-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .response-time {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .error-count {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
         @media (max-width: 768px) {
-            .grid {
+            .api-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .sidebar {
+                position: static;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔍 تست API طرح‌های سرمایه‌گذاری</h1>
-            <p>تست API get_invested_plans با اتصال به Supabase</p>
+            <h1>🚀 Zeema API Documentation & Testing</h1>
+            <p>Comprehensive API testing interface for all Zeema APIs</p>
         </div>
-        
-        <div class="content">
-            <div class="section">
-                <h2>📝 ورودی تست</h2>
-                <input type="text" id="nationalId" placeholder="کد ملی را وارد کنید (مثال: 0372829163)" value="0372829163">
-                <button onclick="testAPI()">🔍 تست API</button>
-                <button onclick="testMultipleInputs()">🔄 تست چندین ورودی</button>
-                <button onclick="testErrorCases()">⚠️ تست موارد خطا</button>
+
+        <div class="api-grid">
+            <div class="sidebar">
+                <h3>📋 Available APIs</h3>
+                <ul class="api-list">
+                    <li class="api-item">
+                        <button class="api-button active" onclick="showAPI('get_invested_plans')">
+                            <div class="method-badge">GET</div>
+                            get_invested_plans
+                        </button>
+                    </li>
+                    <li class="api-item">
+                        <button class="api-button" onclick="showAPI('get_plan_phase')">
+                            <div class="method-badge">GET</div>
+                            get_plan_phase
+                        </button>
+                    </li>
+                </ul>
             </div>
-            
-            <div class="grid">
-                <div class="section">
-                    <h2>📊 نتایج API</h2>
-                    <div id="apiResult" class="result" style="display: none;"></div>
+
+            <div class="main-content">
+                <!-- get_invested_plans API Section -->
+                <div id="get_invested_plans" class="api-section active">
+                    <h2>📊 Get Invested Plans API</h2>
+                    
+                    <div class="api-description">
+                        <h3>🔍 Description</h3>
+                        <p>Retrieves invested plans information from the Supabase database based on national ID.</p>
+                        <p><strong>Endpoint:</strong> <span class="endpoint-badge">invested_plans_by_users</span></p>
+                        <p><strong>Filter:</strong> <span class="endpoint-badge">national_id</span></p>
+                        <p><strong>Returns:</strong> User information with associated plans and transactions</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nationalId">National ID:</label>
+                        <input type="text" id="nationalId" placeholder="Enter national ID (e.g., 0372829163)" value="0372829163">
+                    </div>
+
+                    <div class="test-buttons">
+                        <button class="btn btn-primary" onclick="testGetInvestedPlans()">
+                            <span class="loading-spinner" id="spinner1" style="display: none;"></span>
+                            🚀 Test API
+                        </button>
+                        <button class="btn btn-secondary" onclick="testMultipleInvestedPlans()">🔄 Multiple Tests</button>
+                        <button class="btn btn-warning" onclick="testErrorCasesInvestedPlans()">⚠️ Error Cases</button>
+                        <button class="btn btn-success" onclick="loadSampleData('nationalId', '0372829163')">📊 Sample Data</button>
+                    </div>
+
+                    <div class="result-container">
+                        <div id="result1" class="result"></div>
+                    </div>
                 </div>
-                
-                <div class="section">
-                    <h2>📋 اطلاعات اتصال</h2>
-                    <ul>
-                        <li><strong>Project URL:</strong> https://woobghuekrbzilcdmijv.supabase.co</li>
-                        <li><strong>Table:</strong> invested_plans_by_users</li>
-                        <li><strong>Filter:</strong> national_id</li>
-                        <li><strong>Fields:</strong> first_name, last_name, transactions(plan_id), plans(plan_id, persian_confirmed_symbol)</li>
-                    </ul>
+
+                <!-- get_plan_phase API Section -->
+                <div id="get_plan_phase" class="api-section">
+                    <h2>📋 Get Plan Phase API</h2>
+                    
+                    <div class="api-description">
+                        <h3>🔍 Description</h3>
+                        <p>Retrieves plan phases from the Supabase plan_phase table based on plan ID.</p>
+                        <p><strong>Endpoint:</strong> <span class="endpoint-badge">plan_phase</span></p>
+                        <p><strong>Filter:</strong> <span class="endpoint-badge">plan_id</span></p>
+                        <p><strong>Returns:</strong> Array of plan phases matching the plan ID</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="planId">Plan ID:</label>
+                        <input type="text" id="planId" placeholder="Enter plan ID (e.g., 123, ABC123)" value="123">
+                    </div>
+
+                    <div class="test-buttons">
+                        <button class="btn btn-primary" onclick="testGetPlanPhase()">
+                            <span class="loading-spinner" id="spinner2" style="display: none;"></span>
+                            🚀 Test API
+                        </button>
+                        <button class="btn btn-secondary" onclick="testMultiplePlanPhase()">🔄 Multiple Tests</button>
+                        <button class="btn btn-warning" onclick="testErrorCasesPlanPhase()">⚠️ Error Cases</button>
+                        <button class="btn btn-success" onclick="loadSampleData('planId', '123')">📊 Sample Data</button>
+                    </div>
+
+                    <div class="result-container">
+                        <div id="result2" class="result"></div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="section">
-                <h2>🧪 تست‌های مختلف</h2>
-                <button onclick="testWithSampleData()">📊 تست با داده نمونه</button>
-                <button onclick="testWithEmptyInput()">❌ تست با ورودی خالی</button>
-                <button onclick="testWithInvalidInput()">⚠️ تست با ورودی نامعتبر</button>
-                <button onclick="testWithSpecialCharacters()">🔤 تست با کاراکترهای خاص</button>
-            </div>
-            
-            <div class="section">
-                <h2>📈 آمار تست</h2>
-                <div id="testStats" class="result info">
-                    <strong>آمار تست:</strong>
-                    - تعداد تست‌های موفق: <span id="successCount">0</span>
-                    - تعداد تست‌های ناموفق: <span id="errorCount">0</span>
-                    - زمان متوسط پاسخ: <span id="avgResponseTime">0</span>ms
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="stats-container">
+            <h3>📈 API Testing Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalTests">0</div>
+                    <div class="stat-label">Total Tests</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value response-time" id="successTests">0</div>
+                    <div class="stat-label">Successful</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value error-count" id="errorTests">0</div>
+                    <div class="stat-label">Failed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgResponseTime">0ms</div>
+                    <div class="stat-label">Avg Response Time</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="api_service.js?v=1.0.1"></script>
+    <!-- Include the API service -->
+    <script src="api_service.js"></script>
+
     <script>
-        // Test if API service is loaded correctly
-        console.log('Testing API service availability...');
-        if (window.ZeemaAPIService) {
-            console.log('✅ ZeemaAPIService is available');
-            const testService = new window.ZeemaAPIService();
-            console.log('✅ API service instance created successfully');
-            console.log('✅ get_invested_plans method available:', typeof testService.get_invested_plans === 'function');
-        } else {
-            console.log('❌ ZeemaAPIService is NOT available');
-        }
-        
+        // Initialize API service
         const apiService = new ZeemaAPIService();
-        let testStats = {
-            successCount: 0,
-            errorCount: 0,
-            totalResponseTime: 0,
-            testCount: 0
-        };
         
-        async function testAPI() {
+        // Global test statistics
+        let testStats = {
+            totalTests: 0,
+            successTests: 0,
+            errorTests: 0,
+            totalResponseTime: 0
+        };
+
+        // Show specific API section
+        function showAPI(apiName) {
+            // Hide all sections
+            document.querySelectorAll('.api-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.api-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(apiName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Load sample data
+        function loadSampleData(inputId, value) {
+            document.getElementById(inputId).value = value;
+        }
+
+        // Update statistics
+        function updateStats(success, responseTime) {
+            testStats.totalTests++;
+            testStats.totalResponseTime += responseTime;
+            
+            if (success) {
+                testStats.successTests++;
+            } else {
+                testStats.errorTests++;
+            }
+            
+            const avgResponseTime = Math.round(testStats.totalResponseTime / testStats.totalTests);
+            
+            document.getElementById('totalTests').textContent = testStats.totalTests;
+            document.getElementById('successTests').textContent = testStats.successTests;
+            document.getElementById('errorTests').textContent = testStats.errorTests;
+            document.getElementById('avgResponseTime').textContent = avgResponseTime + 'ms';
+        }
+
+        // Show result
+        function showResult(resultId, message, type) {
+            const resultDiv = document.getElementById(resultId);
+            resultDiv.textContent = message;
+            resultDiv.className = `result ${type}`;
+            resultDiv.style.display = 'block';
+        }
+
+        // Show loading spinner
+        function showSpinner(spinnerId) {
+            document.getElementById(spinnerId).style.display = 'inline-block';
+        }
+
+        // Hide loading spinner
+        function hideSpinner(spinnerId) {
+            document.getElementById(spinnerId).style.display = 'none';
+        }
+
+        // Test get_invested_plans API
+        async function testGetInvestedPlans() {
             const nationalId = document.getElementById('nationalId').value.trim();
-            const resultDiv = document.getElementById('apiResult');
+            const resultId = 'result1';
+            const spinnerId = 'spinner1';
             
             if (!nationalId) {
-                resultDiv.innerHTML = '❌ لطفا کد ملی را وارد کنید.';
-                resultDiv.className = 'result error';
-                resultDiv.style.display = 'block';
+                showResult(resultId, '❌ Please enter a national ID.', 'error');
                 return;
             }
             
-            resultDiv.innerHTML = '🔍 در حال تست API...';
-            resultDiv.className = 'result loading';
-            resultDiv.style.display = 'block';
+            showSpinner(spinnerId);
+            showResult(resultId, '🔄 Testing get_invested_plans API...', 'loading');
             
             const startTime = Date.now();
             
             try {
-                const result = await apiService.get_invested_plans(nationalId);
+                const response = await apiService.get_invested_plans(nationalId);
                 const responseTime = Date.now() - startTime;
                 
-                updateTestStats(result.success, responseTime);
+                updateStats(response.success, responseTime);
                 
                 let resultText = '';
                 
-                if (result.success) {
-                    resultText += `✅ تست موفق!\n\n`;
-                    resultText += `📝 پیام: ${result.message}\n`;
-                    resultText += `⏱️ زمان پاسخ: ${responseTime}ms\n\n`;
+                if (response.success) {
+                    resultText += `✅ API Test Successful!\n\n`;
+                    resultText += `📝 Message: ${response.message}\n`;
+                    resultText += `⏱️ Response Time: ${responseTime}ms\n\n`;
                     
-                    if (result.data && result.data.length > 0) {
-                        resultText += `📊 داده‌های دریافت شده:\n`;
-                        resultText += `<div class="json-display">${JSON.stringify(result.data, null, 2)}</div>\n\n`;
+                    if (response.data && response.data.length > 0) {
+                        resultText += `📊 Data Retrieved:\n`;
+                        resultText += `<div class="json-display">${JSON.stringify(response.data, null, 2)}</div>\n\n`;
                         
-                        resultText += `📋 خلاصه اطلاعات:\n`;
-                        resultText += apiService.formatInvestedPlansData(result.data);
+                        resultText += `📋 Formatted Summary:\n`;
+                        resultText += apiService.formatInvestedPlansData(response.data);
                     } else {
-                        resultText += `❌ هیچ داده‌ای یافت نشد.\n`;
+                        resultText += `ℹ️ No data found for national ID: ${nationalId}`;
                     }
                     
-                    resultDiv.className = 'result success';
+                    showResult(resultId, resultText, 'success');
                 } else {
-                    resultText += `❌ تست ناموفق!\n\n`;
-                    resultText += `📝 پیام خطا: ${result.message}\n`;
-                    resultText += `⏱️ زمان پاسخ: ${responseTime}ms\n`;
+                    resultText += `❌ API Test Failed!\n\n`;
+                    resultText += `📝 Error Message: ${response.message}\n`;
+                    resultText += `⏱️ Response Time: ${responseTime}ms\n`;
                     
-                    resultDiv.className = 'result error';
+                    if (response.error) {
+                        resultText += `🔍 Error Details:\n`;
+                        resultText += `- Name: ${response.error.name}\n`;
+                        resultText += `- Message: ${response.error.message}\n`;
+                    }
+                    
+                    showResult(resultId, resultText, 'error');
                 }
-                
-                resultDiv.innerHTML = resultText;
                 
             } catch (error) {
                 const responseTime = Date.now() - startTime;
-                updateTestStats(false, responseTime);
+                updateStats(false, responseTime);
                 
-                resultDiv.innerHTML = `❌ خطا در تست: ${error.message}\n⏱️ زمان پاسخ: ${responseTime}ms`;
-                resultDiv.className = 'result error';
+                showResult(resultId, `💥 Unexpected Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms`, 'error');
+            } finally {
+                hideSpinner(spinnerId);
             }
         }
-        
-        async function testMultipleInputs() {
-            const testInputs = [
-                '0372829163',
-                '1234567890',
-                '9876543210',
-                '1111111111',
-                '2222222222'
-            ];
+
+        // Test get_plan_phase API
+        async function testGetPlanPhase() {
+            const planId = document.getElementById('planId').value.trim();
+            const resultId = 'result2';
+            const spinnerId = 'spinner2';
             
-            const resultDiv = document.getElementById('apiResult');
-            resultDiv.innerHTML = '🔄 در حال تست چندین ورودی...\n\n';
-            resultDiv.className = 'result loading';
-            resultDiv.style.display = 'block';
+            if (!planId) {
+                showResult(resultId, '❌ Please enter a plan ID.', 'error');
+                return;
+            }
+            
+            showSpinner(spinnerId);
+            showResult(resultId, '🔄 Testing get_plan_phase API...', 'loading');
+            
+            const startTime = Date.now();
+            
+            try {
+                const response = await apiService.get_plan_phase(planId);
+                const responseTime = Date.now() - startTime;
+                
+                updateStats(response.success, responseTime);
+                
+                let resultText = '';
+                
+                if (response.success) {
+                    resultText += `✅ API Test Successful!\n\n`;
+                    resultText += `📝 Message: ${response.message}\n`;
+                    resultText += `⏱️ Response Time: ${responseTime}ms\n\n`;
+                    
+                    if (response.data && response.data.length > 0) {
+                        resultText += `📊 Plan Phases Data:\n`;
+                        resultText += `<div class="json-display">${JSON.stringify(response.data, null, 2)}</div>\n\n`;
+                        
+                        resultText += `📋 Summary:\n`;
+                        resultText += `- Total phases found: ${response.data.length}\n`;
+                        response.data.forEach((phase, index) => {
+                            resultText += `- Phase ${index + 1}: ${phase.phase_name || 'Unnamed'} (${phase.phase_description || 'No description'})\n`;
+                        });
+                    } else {
+                        resultText += `ℹ️ No plan phases found for plan ID: ${planId}`;
+                    }
+                    
+                    showResult(resultId, resultText, 'success');
+                } else {
+                    resultText += `❌ API Test Failed!\n\n`;
+                    resultText += `📝 Error Message: ${response.message}\n`;
+                    resultText += `⏱️ Response Time: ${responseTime}ms\n`;
+                    
+                    if (response.error) {
+                        resultText += `🔍 Error Details:\n`;
+                        resultText += `- Name: ${response.error.name}\n`;
+                        resultText += `- Message: ${response.error.message}\n`;
+                    }
+                    
+                    showResult(resultId, resultText, 'error');
+                }
+                
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                updateStats(false, responseTime);
+                
+                showResult(resultId, `💥 Unexpected Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms`, 'error');
+            } finally {
+                hideSpinner(spinnerId);
+            }
+        }
+
+        // Multiple tests for get_invested_plans
+        async function testMultipleInvestedPlans() {
+            const testInputs = ['0372829163', '1234567890', '9876543210', '1111111111'];
+            const resultId = 'result1';
+            
+            showResult(resultId, '🔄 Running multiple tests for get_invested_plans...\n\n', 'loading');
             
             let results = '';
             
             for (const input of testInputs) {
                 try {
                     const startTime = Date.now();
-                    const result = await apiService.get_invested_plans(input);
+                    const response = await apiService.get_invested_plans(input);
                     const responseTime = Date.now() - startTime;
                     
-                    updateTestStats(result.success, responseTime);
+                    updateStats(response.success, responseTime);
                     
-                    results += `🔍 تست با کد ملی: ${input}\n`;
-                    results += `📝 نتیجه: ${result.success ? '✅ موفق' : '❌ ناموفق'}\n`;
-                    results += `📝 پیام: ${result.message}\n`;
-                    results += `⏱️ زمان: ${responseTime}ms\n`;
-                    results += `📊 تعداد رکوردها: ${result.data ? result.data.length : 0}\n\n`;
+                    results += `🔍 Test with national ID: ${input}\n`;
+                    results += `📝 Result: ${response.success ? '✅ Success' : '❌ Failed'}\n`;
+                    results += `📝 Message: ${response.message}\n`;
+                    results += `⏱️ Response Time: ${responseTime}ms\n`;
+                    results += `📊 Records: ${response.data ? response.data.length : 0}\n\n`;
                     
                 } catch (error) {
                     const responseTime = Date.now() - startTime;
-                    updateTestStats(false, responseTime);
+                    updateStats(false, responseTime);
                     
-                    results += `🔍 تست با کد ملی: ${input}\n`;
-                    results += `❌ خطا: ${error.message}\n⏱️ زمان: ${responseTime}ms\n\n`;
+                    results += `🔍 Test with national ID: ${input}\n`;
+                    results += `❌ Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms\n\n`;
                 }
             }
             
-            resultDiv.innerHTML = results;
-            resultDiv.className = 'result';
+            showResult(resultId, results, 'info');
         }
-        
-        async function testErrorCases() {
-            const errorInputs = [
-                '',
-                '   ',
-                'abc123',
-                '12345678901234567890',
-                '!@#$%^&*()',
-                'null',
-                'undefined'
-            ];
+
+        // Multiple tests for get_plan_phase
+        async function testMultiplePlanPhase() {
+            const testInputs = ['123', '456', '789', 'ABC123', 'TEST_PLAN'];
+            const resultId = 'result2';
             
-            const resultDiv = document.getElementById('apiResult');
-            resultDiv.innerHTML = '⚠️ در حال تست موارد خطا...\n\n';
-            resultDiv.className = 'result loading';
-            resultDiv.style.display = 'block';
+            showResult(resultId, '🔄 Running multiple tests for get_plan_phase...\n\n', 'loading');
+            
+            let results = '';
+            
+            for (const input of testInputs) {
+                try {
+                    const startTime = Date.now();
+                    const response = await apiService.get_plan_phase(input);
+                    const responseTime = Date.now() - startTime;
+                    
+                    updateStats(response.success, responseTime);
+                    
+                    results += `🔍 Test with plan ID: ${input}\n`;
+                    results += `📝 Result: ${response.success ? '✅ Success' : '❌ Failed'}\n`;
+                    results += `📝 Message: ${response.message}\n`;
+                    results += `⏱️ Response Time: ${responseTime}ms\n`;
+                    results += `📊 Records: ${response.data ? response.data.length : 0}\n\n`;
+                    
+                } catch (error) {
+                    const responseTime = Date.now() - startTime;
+                    updateStats(false, responseTime);
+                    
+                    results += `🔍 Test with plan ID: ${input}\n`;
+                    results += `❌ Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms\n\n`;
+                }
+            }
+            
+            showResult(resultId, results, 'info');
+        }
+
+        // Error cases for get_invested_plans
+        async function testErrorCasesInvestedPlans() {
+            const errorInputs = ['', '   ', 'abc123', '12345678901234567890', '!@#$%^&*()'];
+            const resultId = 'result1';
+            
+            showResult(resultId, '⚠️ Testing error cases for get_invested_plans...\n\n', 'loading');
             
             let results = '';
             
             for (const input of errorInputs) {
                 try {
                     const startTime = Date.now();
-                    const result = await apiService.get_invested_plans(input);
+                    const response = await apiService.get_invested_plans(input);
                     const responseTime = Date.now() - startTime;
                     
-                    updateTestStats(result.success, responseTime);
+                    updateStats(response.success, responseTime);
                     
-                    results += `🔍 تست با ورودی: "${input}"\n`;
-                    results += `📝 نتیجه: ${result.success ? '✅ موفق' : '❌ ناموفق'}\n`;
-                    results += `📝 پیام: ${result.message}\n`;
-                    results += `⏱️ زمان: ${responseTime}ms\n\n`;
+                    results += `🔍 Test with input: "${input}"\n`;
+                    results += `📝 Result: ${response.success ? '✅ Success' : '❌ Failed'}\n`;
+                    results += `📝 Message: ${response.message}\n`;
+                    results += `⏱️ Response Time: ${responseTime}ms\n\n`;
                     
                 } catch (error) {
                     const responseTime = Date.now() - startTime;
-                    updateTestStats(false, responseTime);
+                    updateStats(false, responseTime);
                     
-                    results += `🔍 تست با ورودی: "${input}"\n`;
-                    results += `❌ خطا: ${error.message}\n⏱️ زمان: ${responseTime}ms\n\n`;
+                    results += `🔍 Test with input: "${input}"\n`;
+                    results += `❌ Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms\n\n`;
                 }
             }
             
-            resultDiv.innerHTML = results;
-            resultDiv.className = 'result';
+            showResult(resultId, results, 'info');
         }
-        
-        function testWithSampleData() {
-            document.getElementById('nationalId').value = '0372829163';
-            testAPI();
-        }
-        
-        function testWithEmptyInput() {
-            document.getElementById('nationalId').value = '';
-            testAPI();
-        }
-        
-        function testWithInvalidInput() {
-            document.getElementById('nationalId').value = 'invalid123';
-            testAPI();
-        }
-        
-        function testWithSpecialCharacters() {
-            document.getElementById('nationalId').value = '123!@#$%^&*()';
-            testAPI();
-        }
-        
-        function updateTestStats(success, responseTime) {
-            if (success) {
-                testStats.successCount++;
-            } else {
-                testStats.errorCount++;
+
+        // Error cases for get_plan_phase
+        async function testErrorCasesPlanPhase() {
+            const errorInputs = ['', '   ', 'invalid', '!@#$%^&*()', 'null', 'undefined'];
+            const resultId = 'result2';
+            
+            showResult(resultId, '⚠️ Testing error cases for get_plan_phase...\n\n', 'loading');
+            
+            let results = '';
+            
+            for (const input of errorInputs) {
+                try {
+                    const startTime = Date.now();
+                    const response = await apiService.get_plan_phase(input);
+                    const responseTime = Date.now() - startTime;
+                    
+                    updateStats(response.success, responseTime);
+                    
+                    results += `🔍 Test with input: "${input}"\n`;
+                    results += `📝 Result: ${response.success ? '✅ Success' : '❌ Failed'}\n`;
+                    results += `📝 Message: ${response.message}\n`;
+                    results += `⏱️ Response Time: ${responseTime}ms\n\n`;
+                    
+                } catch (error) {
+                    const responseTime = Date.now() - startTime;
+                    updateStats(false, responseTime);
+                    
+                    results += `🔍 Test with input: "${input}"\n`;
+                    results += `❌ Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms\n\n`;
+                }
             }
             
-            testStats.totalResponseTime += responseTime;
-            testStats.testCount++;
-            
-            const avgResponseTime = testStats.testCount > 0 ? Math.round(testStats.totalResponseTime / testStats.testCount) : 0;
-            
-            document.getElementById('successCount').textContent = testStats.successCount;
-            document.getElementById('errorCount').textContent = testStats.errorCount;
-            document.getElementById('avgResponseTime').textContent = avgResponseTime;
+            showResult(resultId, results, 'info');
         }
-        
-        // Auto-test on page load
+
+        // Initialize on page load
         window.addEventListener('load', () => {
+            console.log('🚀 Zeema API Testing Interface Loaded');
+            console.log('✅ Available APIs: get_invested_plans, get_plan_phase');
+            
+            // Auto-test the first API
             setTimeout(() => {
-                testWithSampleData();
+                testGetInvestedPlans();
             }, 1000);
         });
     </script>

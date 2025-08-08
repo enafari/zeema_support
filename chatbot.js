@@ -487,15 +487,18 @@
                 minute: '2-digit'
             });
 
+            // Convert \n to <br> tags for proper line breaks in HTML
+            const formattedText = text.replace(/\n/g, '<br>');
+
             if (sender === 'bot') {
                 messageDiv.innerHTML = `
                     <div class="zeema-message-avatar">زی</div>
-                    <div class="zeema-message-content">${text}</div>
+                    <div class="zeema-message-content">${formattedText}</div>
                     <div class="zeema-timestamp">${timestamp}</div>
                 `;
             } else {
                 messageDiv.innerHTML = `
-                    <div class="zeema-message-content">${text}</div>
+                    <div class="zeema-message-content">${formattedText}</div>
                     <div class="zeema-timestamp">${timestamp}</div>
                 `;
             }

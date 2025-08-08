@@ -125,6 +125,100 @@ class ZeemaAPIService {
         }
     }
 
+    // Get plan phases by plan ID
+    async get_plan_phase(planId) {
+        try {
+            console.log(`🔍 Fetching plan phases for plan ID: ${planId}`);
+            
+            // Validate input
+            if (!planId || typeof planId !== 'string' && typeof planId !== 'number') {
+                throw new Error('Invalid plan ID provided');
+            }
+            
+            // Convert to string and clean the plan ID
+            const cleanPlanId = String(planId).trim();
+            console.log(`🧹 Cleaned plan ID: ${cleanPlanId}`);
+            
+            // Query the plan_phase table
+            console.log('📋 Querying plan_phase table...');
+            const queryUrl = `${this.supabaseUrl}/rest/v1/plan_phase?plan_id=eq.${encodeURIComponent(cleanPlanId)}&select=*`;
+            console.log('Query URL:', queryUrl);
+            
+            const response = await fetch(queryUrl, {
+                method: 'GET',
+                headers: this.baseHeaders,
+                mode: 'cors'
+            });
+            
+            console.log('Query response status:', response.status);
+            console.log('Query response headers:', Object.fromEntries(response.headers.entries()));
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Query failed:', errorText);
+                
+                // Try alternative query format
+                console.log('🔄 Trying alternative query format...');
+                const altQueryUrl = `${this.supabaseUrl}/rest/v1/plan_phase?select=*&plan_id=eq.${encodeURIComponent(cleanPlanId)}`;
+                console.log('Alternative query URL:', altQueryUrl);
+                
+                const altResponse = await fetch(altQueryUrl, {
+                    method: 'GET',
+                    headers: this.baseHeaders,
+                    mode: 'cors'
+                });
+                
+                console.log('Alternative query status:', altResponse.status);
+                
+                if (!altResponse.ok) {
+                    const altErrorText = await altResponse.text();
+                    console.error('Alternative query also failed:', altErrorText);
+                    throw new Error(`HTTP error! status: ${altResponse.status}, details: ${altErrorText}`);
+                }
+                
+                const data = await altResponse.json();
+                console.log('✅ Alternative query successful, data:', data);
+                
+                return {
+                    success: true,
+                    data: data,
+                    message: data.length > 0 ? 'Plan phases retrieved successfully' : 'No plan phases found for this plan ID'
+                };
+            }
+            
+            const data = await response.json();
+            console.log('✅ Query successful, data:', data);
+            
+            return {
+                success: true,
+                data: data,
+                message: data.length > 0 ? 'Plan phases retrieved successfully' : 'No plan phases found for this plan ID'
+            };
+            
+        } catch (error) {
+            console.error('❌ Error fetching plan phases:', error);
+            
+            // Provide more detailed error information
+            let errorMessage = error.message;
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                errorMessage = 'Network error - please check your internet connection';
+            } else if (error.message.includes('CORS')) {
+                errorMessage = 'CORS error - please check browser settings';
+            }
+            
+            return {
+                success: false,
+                data: null,
+                message: `Error: ${errorMessage}`,
+                error: {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                }
+            };
+        }
+    }
+
     // Format data for display
     formatInvestedPlansData(data) {
         if (!data || data.length === 0) {
