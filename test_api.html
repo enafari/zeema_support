@@ -384,6 +384,24 @@
                             get_plan_phase
                         </button>
                     </li>
+                    <li class="api-item">
+                        <button class="api-button" onclick="showAPI('insert_chat_id')">
+                            <div class="method-badge">POST</div>
+                            insert_chat_id
+                        </button>
+                    </li>
+                    <li class="api-item">
+                        <button class="api-button" onclick="showAPI('insert_national_id')">
+                            <div class="method-badge">POST</div>
+                            insert_national_id
+                        </button>
+                    </li>
+                    <li class="api-item">
+                        <button class="api-button" onclick="showAPI('get_chat_by_id')">
+                            <div class="method-badge">GET</div>
+                            get_chat_by_id
+                        </button>
+                    </li>
                 </ul>
             </div>
 
@@ -451,6 +469,103 @@
                         <div id="result2" class="result"></div>
                     </div>
                 </div>
+
+                <!-- insert_chat_id API Section -->
+                <div id="insert_chat_id" class="api-section">
+                    <h2>💬 Insert Chat ID API</h2>
+                    
+                    <div class="api-description">
+                        <h3>🔍 Description</h3>
+                        <p>Generates a new unique chat_id and inserts it into the Supabase chats table.</p>
+                        <p><strong>Endpoint:</strong> <span class="endpoint-badge">chats</span></p>
+                        <p><strong>Method:</strong> <span class="endpoint-badge">POST</span></p>
+                        <p><strong>Returns:</strong> New chat_id and created_at timestamp</p>
+                    </div>
+
+                    <div class="test-buttons">
+                        <button class="btn btn-primary" onclick="testInsertChatId()">
+                            <span class="loading-spinner" id="spinner3" style="display: none;"></span>
+                            🚀 Test API
+                        </button>
+                        <button class="btn btn-secondary" onclick="testMultipleInsertChatId()">🔄 Multiple Tests</button>
+                        <button class="btn btn-warning" onclick="testErrorCasesInsertChatId()">⚠️ Error Cases</button>
+                        <button class="btn btn-success" onclick="clearChatIdResult()">🗑️ Clear Result</button>
+                    </div>
+
+                    <div class="result-container">
+                        <div id="result3" class="result"></div>
+                    </div>
+                </div>
+
+                <!-- insert_national_id API Section -->
+                <div id="insert_national_id" class="api-section">
+                    <h2>👤 Insert National ID API</h2>
+                    
+                    <div class="api-description">
+                        <h3>🔍 Description</h3>
+                        <p>Inserts national_id into the chats table based on chat_id.</p>
+                        <p><strong>Endpoint:</strong> <span class="endpoint-badge">chats</span></p>
+                        <p><strong>Method:</strong> <span class="endpoint-badge">POST</span></p>
+                        <p><strong>Parameters:</strong> <span class="endpoint-badge">national_id</span>, <span class="endpoint-badge">chat_id</span></p>
+                        <p><strong>Returns:</strong> Updated chat information with national_id</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nationalIdForUser">National ID:</label>
+                        <input type="text" id="nationalIdForUser" placeholder="Enter national ID (e.g., 0372829163)" value="0372829163">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="chatIdForUser">Chat ID:</label>
+                        <input type="text" id="chatIdForUser" placeholder="Enter chat ID (e.g., 17547681731992522)" value="">
+                    </div>
+
+                    <div class="test-buttons">
+                        <button class="btn btn-primary" onclick="testInsertNationalId()">
+                            <span class="loading-spinner" id="spinner5" style="display: none;"></span>
+                            🚀 Test API
+                        </button>
+                        <button class="btn btn-secondary" onclick="testMultipleInsertNationalId()">🔄 Multiple Tests</button>
+                        <button class="btn btn-warning" onclick="testErrorCasesInsertNationalId()">⚠️ Error Cases</button>
+                        <button class="btn btn-success" onclick="loadSampleData('chatIdForUser', '17547681731992522')">📊 Sample Data</button>
+                    </div>
+
+                    <div class="result-container">
+                        <div id="result5" class="result"></div>
+                    </div>
+                </div>
+
+                <!-- get_chat_by_id API Section -->
+                <div id="get_chat_by_id" class="api-section">
+                    <h2>🔍 Get Chat by ID API</h2>
+                    
+                    <div class="api-description">
+                        <h3>🔍 Description</h3>
+                        <p>Retrieves chat information from the Supabase chats table based on chat_id.</p>
+                        <p><strong>Endpoint:</strong> <span class="endpoint-badge">chats</span></p>
+                        <p><strong>Filter:</strong> <span class="endpoint-badge">chat_id</span></p>
+                        <p><strong>Returns:</strong> Chat information including chat_id, user_id, and created_at</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="chatId">Chat ID:</label>
+                        <input type="text" id="chatId" placeholder="Enter chat ID (e.g., 17547681731992522)" value="">
+                    </div>
+
+                    <div class="test-buttons">
+                        <button class="btn btn-primary" onclick="testGetChatById()">
+                            <span class="loading-spinner" id="spinner4" style="display: none;"></span>
+                            🚀 Test API
+                        </button>
+                        <button class="btn btn-secondary" onclick="testMultipleGetChatById()">🔄 Multiple Tests</button>
+                        <button class="btn btn-warning" onclick="testErrorCasesGetChatById()">⚠️ Error Cases</button>
+                        <button class="btn btn-success" onclick="loadSampleData('chatId', '17547681731992522')">📊 Sample Data</button>
+                    </div>
+
+                    <div class="result-container">
+                        <div id="result4" class="result"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -479,11 +594,18 @@
     </div>
 
     <!-- Include the API service -->
-    <script src="api_service.js"></script>
+    <script src="api_service.js?v=1.0.4"></script>
 
     <script>
         // Initialize API service
         const apiService = new ZeemaAPIService();
+        
+        // Debug: Check if API service and methods are loaded
+        console.log('🔍 Debug: Checking API service...');
+        console.log('API Service:', apiService);
+        console.log('Available methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(apiService)));
+        console.log('insert_chat_id method:', typeof apiService.insert_chat_id);
+        console.log('get_chat_by_id method:', typeof apiService.get_chat_by_id);
         
         // Global test statistics
         let testStats = {
@@ -652,7 +774,6 @@
                         resultText += `<div class="json-display">${JSON.stringify(response.data, null, 2)}</div>\n\n`;
                         
                         resultText += `📋 Summary:\n`;
-                        resultText += `- Total phases found: ${response.data.length}\n`;
                         response.data.forEach((phase, index) => {
                             resultText += `- Phase ${index + 1}: ${phase.phase_name || 'Unnamed'} (${phase.phase_description || 'No description'})\n`;
                         });
@@ -823,10 +944,456 @@
             showResult(resultId, results, 'info');
         }
 
+        // Test insert_chat_id API
+        async function testInsertChatId() {
+            const resultId = 'result3';
+            const spinnerId = 'spinner3';
+            
+            showSpinner(spinnerId);
+            showResult(resultId, '🔄 Testing insert_chat_id API...', 'loading');
+            
+            const startTime = Date.now();
+            
+            try {
+                const response = await apiService.insert_chat_id();
+                const responseTime = Date.now() - startTime;
+                
+                updateStats(response.success, responseTime);
+                
+                let resultText = '';
+                
+                if (response.success) {
+                    resultText += `✅ API Test Successful!\n\n`;
+                    resultText += `📝 Message: ${response.message}\n`;
+                    resultText += `⏱️ Response Time: ${responseTime}ms\n\n`;
+                    
+                    if (response.data) {
+                        resultText += `📊 Chat Data Created:\n`;
+                        resultText += `<div class="json-display">${JSON.stringify(response.data, null, 2)}</div>\n\n`;
+                        
+                        resultText += `📋 Summary:\n`;
+                        resultText += `- Chat ID: ${response.data.chat_id}\n`;
+                        resultText += `- Created At: ${response.data.created_at}\n`;
+                        resultText += `- Status: Active\n`;
+                    }
+                    
+                    showResult(resultId, resultText, 'success');
+                } else {
+                    resultText += `❌ API Test Failed!\n\n`;
+                    resultText += `📝 Error Message: ${response.message}\n`;
+                    resultText += `⏱️ Response Time: ${responseTime}ms\n`;
+                    
+                    if (response.error) {
+                        resultText += `🔍 Error Details:\n`;
+                        resultText += `- Name: ${response.error.name}\n`;
+                        resultText += `- Message: ${response.error.message}\n`;
+                    }
+                    
+                    showResult(resultId, resultText, 'error');
+                }
+                
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                updateStats(false, responseTime);
+                
+                showResult(resultId, `💥 Unexpected Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms`, 'error');
+            } finally {
+                hideSpinner(spinnerId);
+            }
+        }
+
+        // Test get_chat_by_id API
+        async function testGetChatById() {
+            const chatId = document.getElementById('chatId').value.trim();
+            const resultId = 'result4';
+            const spinnerId = 'spinner4';
+            
+            if (!chatId) {
+                showResult(resultId, '❌ Please enter a chat ID.', 'error');
+                return;
+            }
+            
+            showSpinner(spinnerId);
+            showResult(resultId, '🔄 Testing get_chat_by_id API...', 'loading');
+            
+            const startTime = Date.now();
+            
+            try {
+                const response = await apiService.get_chat_by_id(chatId);
+                const responseTime = Date.now() - startTime;
+                
+                updateStats(response.success, responseTime);
+                
+                let resultText = '';
+                
+                if (response.success) {
+                    resultText += `✅ API Test Successful!\n\n`;
+                    resultText += `📝 Message: ${response.message}\n`;
+                    resultText += `⏱️ Response Time: ${responseTime}ms\n\n`;
+                    
+                    if (response.data && response.data.length > 0) {
+                        resultText += `📊 Chat Data Retrieved:\n`;
+                        resultText += `<div class="json-display">${JSON.stringify(response.data, null, 2)}</div>\n\n`;
+                        
+                        resultText += `📋 Summary:\n`;
+                        const chatData = response.data[0];
+                        resultText += `- Chat ID: ${chatData.chat_id}\n`;
+                        resultText += `- User ID: ${chatData.user_id || 'Not assigned'}\n`;
+                        resultText += `- Created At: ${chatData.created_at || 'Not available'}\n`;
+                    } else {
+                        resultText += `ℹ️ No chat found for chat ID: ${chatId}`;
+                    }
+                    
+                    showResult(resultId, resultText, 'success');
+                } else {
+                    resultText += `❌ API Test Failed!\n\n`;
+                    resultText += `📝 Error Message: ${response.message}\n`;
+                    resultText += `⏱️ Response Time: ${responseTime}ms\n`;
+                    
+                    if (response.error) {
+                        resultText += `🔍 Error Details:\n`;
+                        resultText += `- Name: ${response.error.name}\n`;
+                        resultText += `- Message: ${response.error.message}\n`;
+                    }
+                    
+                    showResult(resultId, resultText, 'error');
+                }
+                
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                updateStats(false, responseTime);
+                
+                showResult(resultId, `💥 Unexpected Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms`, 'error');
+            } finally {
+                hideSpinner(spinnerId);
+            }
+        }
+
+        // Multiple tests for insert_chat_id
+        async function testMultipleInsertChatId() {
+            const resultId = 'result3';
+            
+            showResult(resultId, '🔄 Running multiple tests for insert_chat_id...\n\n', 'loading');
+            
+            let results = '';
+            
+            for (let i = 0; i < 3; i++) {
+                try {
+                    const startTime = Date.now();
+                    const response = await apiService.insert_chat_id();
+                    const responseTime = Date.now() - startTime;
+                    
+                    updateStats(response.success, responseTime);
+                    
+                    results += `🔍 Test ${i + 1}:\n`;
+                    results += `📝 Result: ${response.success ? '✅ Success' : '❌ Failed'}\n`;
+                    results += `📝 Message: ${response.message}\n`;
+                    results += `⏱️ Response Time: ${responseTime}ms\n`;
+                    
+                    if (response.success && response.data) {
+                        results += `📊 Chat ID: ${response.data.chat_id}\n`;
+                        results += `📅 Created At: ${response.data.created_at}\n`;
+                    }
+                    
+                    results += '\n';
+                    
+                } catch (error) {
+                    const responseTime = Date.now() - startTime;
+                    updateStats(false, responseTime);
+                    
+                    results += `🔍 Test ${i + 1}:\n`;
+                    results += `❌ Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms\n\n`;
+                }
+            }
+            
+            showResult(resultId, results, 'info');
+        }
+
+        // Multiple tests for get_chat_by_id
+        async function testMultipleGetChatById() {
+            const testInputs = ['17547681731992522', '17547679822438824', '17547678231199633'];
+            const resultId = 'result4';
+            
+            showResult(resultId, '🔄 Running multiple tests for get_chat_by_id...\n\n', 'loading');
+            
+            let results = '';
+            
+            for (const input of testInputs) {
+                try {
+                    const startTime = Date.now();
+                    const response = await apiService.get_chat_by_id(input);
+                    const responseTime = Date.now() - startTime;
+                    
+                    updateStats(response.success, responseTime);
+                    
+                    results += `🔍 Test with chat ID: ${input}\n`;
+                    results += `📝 Result: ${response.success ? '✅ Success' : '❌ Failed'}\n`;
+                    results += `📝 Message: ${response.message}\n`;
+                    results += `⏱️ Response Time: ${responseTime}ms\n`;
+                    results += `📊 Records: ${response.data ? response.data.length : 0}\n\n`;
+                    
+                } catch (error) {
+                    const responseTime = Date.now() - startTime;
+                    updateStats(false, responseTime);
+                    
+                    results += `🔍 Test with chat ID: ${input}\n`;
+                    results += `❌ Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms\n\n`;
+                }
+            }
+            
+            showResult(resultId, results, 'info');
+        }
+
+        // Error cases for insert_chat_id
+        async function testErrorCasesInsertChatId() {
+            const resultId = 'result3';
+            
+            showResult(resultId, '⚠️ Testing error cases for insert_chat_id...\n\n', 'loading');
+            
+            let results = '';
+            
+            // Note: insert_chat_id doesn't take parameters, so we'll test the API behavior
+            try {
+                const startTime = Date.now();
+                const response = await apiService.insert_chat_id();
+                const responseTime = Date.now() - startTime;
+                
+                updateStats(response.success, responseTime);
+                
+                results += `🔍 Test: Normal insert_chat_id call\n`;
+                results += `📝 Result: ${response.success ? '✅ Success' : '❌ Failed'}\n`;
+                results += `📝 Message: ${response.message}\n`;
+                results += `⏱️ Response Time: ${responseTime}ms\n\n`;
+                
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                updateStats(false, responseTime);
+                
+                results += `🔍 Test: Normal insert_chat_id call\n`;
+                results += `❌ Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms\n\n`;
+            }
+            
+            showResult(resultId, results, 'info');
+        }
+
+        // Error cases for get_chat_by_id
+        async function testErrorCasesGetChatById() {
+            const errorInputs = ['', '   ', 'invalid', '!@#$%^&*()', 'null', 'undefined', '99999999999999999'];
+            const resultId = 'result4';
+            
+            showResult(resultId, '⚠️ Testing error cases for get_chat_by_id...\n\n', 'loading');
+            
+            let results = '';
+            
+            for (const input of errorInputs) {
+                try {
+                    const startTime = Date.now();
+                    const response = await apiService.get_chat_by_id(input);
+                    const responseTime = Date.now() - startTime;
+                    
+                    updateStats(response.success, responseTime);
+                    
+                    results += `🔍 Test with input: "${input}"\n`;
+                    results += `📝 Result: ${response.success ? '✅ Success' : '❌ Failed'}\n`;
+                    results += `📝 Message: ${response.message}\n`;
+                    results += `⏱️ Response Time: ${responseTime}ms\n\n`;
+                    
+                } catch (error) {
+                    const responseTime = Date.now() - startTime;
+                    updateStats(false, responseTime);
+                    
+                    results += `🔍 Test with input: "${input}"\n`;
+                    results += `❌ Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms\n\n`;
+                }
+            }
+            
+            showResult(resultId, results, 'info');
+        }
+
+        // Clear chat ID result
+        function clearChatIdResult() {
+            const resultId = 'result3';
+            showResult(resultId, '', 'info');
+            document.getElementById(resultId).style.display = 'none';
+        }
+
+        // Test insert_national_id API
+        async function testInsertNationalId() {
+            const nationalId = document.getElementById('nationalIdForUser').value.trim();
+            const chatId = document.getElementById('chatIdForUser').value.trim();
+            const resultId = 'result5';
+            const spinnerId = 'spinner5';
+            
+            if (!nationalId) {
+                showResult(resultId, '❌ Please enter a national ID.', 'error');
+                return;
+            }
+            if (!chatId) {
+                showResult(resultId, '❌ Please enter a chat ID.', 'error');
+                return;
+            }
+            
+            showSpinner(spinnerId);
+            showResult(resultId, '🔄 Testing insert_national_id API...', 'loading');
+            
+            const startTime = Date.now();
+            
+            try {
+                const response = await apiService.insert_national_id(nationalId, chatId);
+                const responseTime = Date.now() - startTime;
+                
+                updateStats(response.success, responseTime);
+                
+                let resultText = '';
+                
+                if (response.success) {
+                    resultText += `✅ API Test Successful!\n\n`;
+                    resultText += `📝 Message: ${response.message}\n`;
+                    resultText += `⏱️ Response Time: ${responseTime}ms\n\n`;
+                    
+                    if (response.data) {
+                        resultText += `📊 Chat Data Updated:\n`;
+                        resultText += `<div class="json-display">${JSON.stringify(response.data, null, 2)}</div>\n\n`;
+                        
+                        resultText += `📋 Summary:\n`;
+                        resultText += `- Chat ID: ${response.data.chat_id}\n`;
+                        resultText += `- National ID: ${response.data.national_id}\n`;
+                    }
+                    
+                    showResult(resultId, resultText, 'success');
+                } else {
+                    resultText += `❌ API Test Failed!\n\n`;
+                    resultText += `📝 Error Message: ${response.message}\n`;
+                    resultText += `⏱️ Response Time: ${responseTime}ms\n`;
+                    
+                    if (response.error) {
+                        resultText += `🔍 Error Details:\n`;
+                        resultText += `- Name: ${response.error.name}\n`;
+                        resultText += `- Message: ${response.error.message}\n`;
+                    }
+                    
+                    showResult(resultId, resultText, 'error');
+                }
+                
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                updateStats(false, responseTime);
+                
+                showResult(resultId, `💥 Unexpected Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms`, 'error');
+            } finally {
+                hideSpinner(spinnerId);
+            }
+        }
+
+        // Multiple tests for insert_national_id
+        async function testMultipleInsertNationalId() {
+            const testInputs = [
+                { nationalId: '0372829163', chatId: '17547681731992522' },
+                { nationalId: '1234567890', chatId: '17547679822438824' },
+                { nationalId: '9876543210', chatId: '17547678231199633' }
+            ];
+            const resultId = 'result5';
+            
+            showResult(resultId, '🔄 Running multiple tests for insert_national_id...\n\n', 'loading');
+            
+            let results = '';
+            
+            for (const item of testInputs) {
+                try {
+                    const startTime = Date.now();
+                    const response = await apiService.insert_national_id(item.nationalId, item.chatId);
+                    const responseTime = Date.now() - startTime;
+                    
+                    updateStats(response.success, responseTime);
+                    
+                    results += `🔍 Test with National ID: ${item.nationalId}, Chat ID: ${item.chatId}\n`;
+                    results += `📝 Result: ${response.success ? '✅ Success' : '❌ Failed'}\n`;
+                    results += `📝 Message: ${response.message}\n`;
+                    results += `⏱️ Response Time: ${responseTime}ms\n`;
+                    
+                    if (response.success && response.data) {
+                        results += `📊 Chat Data Updated:\n`;
+                        results += `<div class="json-display">${JSON.stringify(response.data, null, 2)}</div>\n`;
+                    }
+                    
+                    results += '\n';
+                    
+                } catch (error) {
+                    const responseTime = Date.now() - startTime;
+                    updateStats(false, responseTime);
+                    
+                    results += `🔍 Test with National ID: ${item.nationalId}, Chat ID: ${item.chatId}\n`;
+                    results += `❌ Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms\n\n`;
+                }
+            }
+            
+            showResult(resultId, results, 'info');
+        }
+
+        // Error cases for insert_national_id
+        async function testErrorCasesInsertNationalId() {
+            const errorInputs = [
+                { nationalId: '', chatId: '17547681731992522' },
+                { nationalId: '   ', chatId: '17547679822438824' },
+                { nationalId: 'abc123', chatId: '17547678231199633' },
+                { nationalId: '12345678901234567890', chatId: '17547678231199633' },
+                { nationalId: '!@#$%^&*()', chatId: '17547678231199633' }
+            ];
+            const resultId = 'result5';
+            
+            showResult(resultId, '⚠️ Testing error cases for insert_national_id...\n\n', 'loading');
+            
+            let results = '';
+            
+            for (const item of errorInputs) {
+                try {
+                    const startTime = Date.now();
+                    const response = await apiService.insert_national_id(item.nationalId, item.chatId);
+                    const responseTime = Date.now() - startTime;
+                    
+                    updateStats(response.success, responseTime);
+                    
+                    results += `🔍 Test with National ID: "${item.nationalId}", Chat ID: "${item.chatId}"\n`;
+                    results += `📝 Result: ${response.success ? '✅ Success' : '❌ Failed'}\n`;
+                    results += `📝 Message: ${response.message}\n`;
+                    results += `⏱️ Response Time: ${responseTime}ms\n\n`;
+                    
+                } catch (error) {
+                    const responseTime = Date.now() - startTime;
+                    updateStats(false, responseTime);
+                    
+                    results += `🔍 Test with National ID: "${item.nationalId}", Chat ID: "${item.chatId}"\n`;
+                    results += `❌ Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms\n\n`;
+                }
+            }
+            
+            showResult(resultId, results, 'info');
+        }
+
         // Initialize on page load
         window.addEventListener('load', () => {
             console.log('🚀 Zeema API Testing Interface Loaded');
-            console.log('✅ Available APIs: get_invested_plans, get_plan_phase');
+            console.log('✅ Available APIs: get_invested_plans, get_plan_phase, insert_chat_id, insert_national_id, get_chat_by_id');
+            
+            // Debug: Check if methods are available
+            console.log('🔍 Debug: Checking if chat methods are available...');
+            if (typeof apiService.insert_chat_id === 'function') {
+                console.log('✅ insert_chat_id method is available');
+            } else {
+                console.log('❌ insert_chat_id method is NOT available');
+            }
+            
+            if (typeof apiService.insert_national_id === 'function') {
+                console.log('✅ insert_national_id method is available');
+            } else {
+                console.log('❌ insert_national_id method is NOT available');
+            }
+            
+            if (typeof apiService.get_chat_by_id === 'function') {
+                console.log('✅ get_chat_by_id method is available');
+            } else {
+                console.log('❌ get_chat_by_id method is NOT available');
+            }
             
             // Auto-test the first API
             setTimeout(() => {
@@ -835,4 +1402,4 @@
         });
     </script>
 </body>
-</html> 
+</html>

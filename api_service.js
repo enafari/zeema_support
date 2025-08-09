@@ -3,6 +3,7 @@ class ZeemaAPIService {
     constructor() {
         this.supabaseUrl = 'https://woobghuekrbzilcdmijv.supabase.co';
         this.apiKey = 'sb_publishable_H0UBKWC3vpPfBIFkTBKWgQ_Xxd28nG8';
+        this.apiServerUrl = 'http://localhost:8002'; // API server URL
         this.baseHeaders = {
             'apikey': this.apiKey,
             'Authorization': `Bearer ${this.apiKey}`,
@@ -245,6 +246,275 @@ class ZeemaAPIService {
         }
 
         return response;
+    }
+
+    // Generate and insert new chat_id into chats table
+    async insert_chat_id() {
+        try {
+            console.log('🔍 Generating new chat_id...');
+            
+            // Generate a unique chat_id using UUID4
+            const chat_id = this.generateUUID();
+            console.log(`🧹 Generated chat_id: ${chat_id}`);
+            
+            // Prepare the data to insert (chat_id and created_at)
+            const now = new Date();
+            const chat_data = {
+                chat_id: chat_id,
+                created_at: now.toISOString()
+            };
+            
+            console.log('📋 Inserting chat_id into chats table...');
+            const insertUrl = `${this.supabaseUrl}/rest/v1/chats`;
+            console.log('Insert URL:', insertUrl);
+            
+            const response = await fetch(insertUrl, {
+                method: 'POST',
+                headers: this.baseHeaders,
+                body: JSON.stringify(chat_data),
+                mode: 'cors'
+            });
+            
+            console.log('Insert response status:', response.status);
+            console.log('Insert response headers:', Object.fromEntries(response.headers.entries()));
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Insert failed:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
+            }
+            
+            // Handle response - it might be empty or not JSON
+            let data = null;
+            const responseText = await response.text();
+            
+            if (responseText.trim()) {
+                try {
+                    data = JSON.parse(responseText);
+                } catch (jsonError) {
+                    console.warn('Response is not valid JSON, treating as empty');
+                    data = {};
+                }
+            } else {
+                console.log('Response is empty, treating as successful');
+                data = {};
+            }
+            
+            console.log('✅ Insert successful, data:', data);
+            
+            return {
+                success: true,
+                data: {
+                    chat_id: chat_id,
+                    created_at: chat_data.created_at
+                },
+                message: 'Chat ID generated and inserted successfully'
+            };
+            
+        } catch (error) {
+            console.error('❌ Error inserting chat_id:', error);
+            
+            // Provide more detailed error information
+            let errorMessage = error.message;
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                errorMessage = 'Network error - please check your internet connection';
+            } else if (error.message.includes('CORS')) {
+                errorMessage = 'CORS error - please check browser settings';
+            }
+            
+            return {
+                success: false,
+                data: null,
+                message: `Error: ${errorMessage}`,
+                error: {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                }
+            };
+        }
+    }
+
+    // Get chat information by chat_id
+    async get_chat_by_id(chat_id) {
+        try {
+            console.log(`🔍 Fetching chat for chat_id: ${chat_id}`);
+            
+            // Validate input
+            if (!chat_id || typeof chat_id !== 'string' || chat_id.trim() === '') {
+                throw new Error('Invalid chat_id provided');
+            }
+            
+            // Clean the chat_id
+            const cleanChatId = chat_id.trim();
+            console.log(`🧹 Cleaned chat_id: ${cleanChatId}`);
+            
+            // Query the chats table
+            const queryUrl = `${this.supabaseUrl}/rest/v1/chats?chat_id=eq.${encodeURIComponent(cleanChatId)}&select=*`;
+            console.log('Query URL:', queryUrl);
+            
+            const response = await fetch(queryUrl, {
+                method: 'GET',
+                headers: this.baseHeaders,
+                mode: 'cors'
+            });
+            
+            console.log('Query response status:', response.status);
+            console.log('Query response headers:', Object.fromEntries(response.headers.entries()));
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Query failed:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
+            }
+            
+            const data = await response.json();
+            console.log('✅ Query successful, data:', data);
+            
+            if (data && data.length > 0) {
+                const chatData = data[0];
+                console.log('✅ Found chat:', chatData);
+                
+                return {
+                    success: true,
+                    data: chatData,
+                    message: 'Chat found successfully'
+                };
+            } else {
+                console.log('❌ No chat found for chat_id:', cleanChatId);
+                
+                return {
+                    success: false,
+                    data: null,
+                    message: `No chat found for chat_id: ${cleanChatId}`
+                };
+            }
+            
+        } catch (error) {
+            console.error('❌ Error getting chat by ID:', error);
+            
+            // Provide more detailed error information
+            let errorMessage = error.message;
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                errorMessage = 'Network error - please check your internet connection';
+            } else if (error.message.includes('CORS')) {
+                errorMessage = 'CORS error - please check browser settings';
+            }
+            
+            return {
+                success: false,
+                data: null,
+                message: `Error: ${errorMessage}`,
+                error: {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                }
+            };
+        }
+    }
+
+    // Insert national_id into chats table based on chat_id
+    async insert_national_id(national_id, chat_id) {
+        try {
+            console.log(`🔍 Inserting national_id: ${national_id} for chat_id: ${chat_id}`);
+            
+            // Validate inputs
+            if (!national_id || typeof national_id !== 'string' || national_id.trim() === '') {
+                throw new Error('Invalid national_id provided');
+            }
+            
+            if (!chat_id || typeof chat_id !== 'string' || chat_id.trim() === '') {
+                throw new Error('Invalid chat_id provided');
+            }
+            
+            // Clean the inputs
+            const cleanNationalId = national_id.trim();
+            const cleanChatId = chat_id.trim();
+            console.log(`🧹 Cleaned national_id: ${cleanNationalId}, chat_id: ${cleanChatId}`);
+            
+            // Prepare the request data
+            const requestData = {
+                national_id: cleanNationalId,
+                chat_id: cleanChatId
+            };
+            
+            console.log('📋 Request data:', requestData);
+            
+            // Call the API endpoint
+            const response = await fetch(`${this.apiServerUrl}/api/insert_national_id`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(requestData),
+                mode: 'cors'
+            });
+            
+            console.log('Response status:', response.status);
+            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Insert failed:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
+            }
+            
+            // Handle response - it might be empty or not JSON
+            let data = null;
+            const responseText = await response.text();
+            
+            if (responseText.trim()) {
+                try {
+                    data = JSON.parse(responseText);
+                } catch (jsonError) {
+                    console.warn('Response is not valid JSON, treating as empty');
+                    data = {};
+                }
+            } else {
+                console.log('Response is empty, treating as successful');
+                data = {};
+            }
+            
+            console.log('✅ Insert successful, data:', data);
+            
+            return {
+                success: true,
+                data: data,
+                message: 'National ID inserted successfully'
+            };
+            
+        } catch (error) {
+            console.error('❌ Error inserting national_id:', error);
+            
+            // Provide more detailed error information
+            let errorMessage = error.message;
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                errorMessage = 'Network error - please check your internet connection';
+            } else if (error.message.includes('CORS')) {
+                errorMessage = 'CORS error - please check browser settings';
+            }
+            
+            return {
+                success: false,
+                data: null,
+                message: `Error: ${errorMessage}`,
+                error: {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                }
+            };
+        }
+    }
+
+    // Generate numeric ID for chat_id
+    generateUUID() {
+        // Generate a unique ID using timestamp and random number
+        const timestamp = Date.now(); // Current time in milliseconds
+        const randomNum = Math.floor(Math.random() * 9000) + 1000; // Random 4-digit number
+        return `${timestamp}${randomNum}`;
     }
 }
 

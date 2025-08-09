@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat API Test - Zeema Chatbot</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #E26C2B;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .test-section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        button {
+            background-color: #E26C2B;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #d55a1a;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .loading {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        .log {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Chat API Test - Zeema Chatbot</h1>
+        
+        <div class="test-section">
+            <h3>🔗 API Connection Test</h3>
+            <p>Test the connection to the Chat API server.</p>
+            <button onclick="testConnection()">Test Connection</button>
+            <div id="connection-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Insert Chat ID Test</h3>
+            <p>Generate and insert a new chat_id into the chats table.</p>
+            <button onclick="testInsertChatId()">Insert Chat ID</button>
+            <div id="insert-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Get Chat by ID Test</h3>
+            <p>Retrieve chat information by chat_id.</p>
+            <input type="text" id="chat-id-input" placeholder="Enter chat_id to test" style="width: 300px; padding: 8px; margin-right: 10px;">
+            <button onclick="testGetChatById()">Get Chat</button>
+            <div id="get-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔄 Full Flow Test</h3>
+            <p>Test the complete flow: insert chat_id and then retrieve it.</p>
+            <button onclick="testFullFlow()">Test Full Flow</button>
+            <div id="flow-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Test Logs</h3>
+            <div id="test-logs" class="log"></div>
+        </div>
+    </div>
+
+    <script src="api_service.js"></script>
+    <script>
+        let apiService;
+        let currentChatId = null;
+
+        // Initialize API service
+        function initAPI() {
+            if (!window.ZeemaAPIService) {
+                log('❌ ZeemaAPIService not found. Make sure api_service.js is loaded.', 'error');
+                return false;
+            }
+            
+            apiService = new ZeemaAPIService();
+            log('✅ API service initialized', 'success');
+            return true;
+        }
+
+        // Log function
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('test-logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.style.color = type === 'error' ? '#721c24' : type === 'success' ? '#155724' : '#0c5460';
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logsDiv.appendChild(logEntry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        // Show result
+        function showResult(elementId, data, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+        }
+
+        // Test connection
+        async function testConnection() {
+            log('🔗 Testing API connection...', 'info');
+            
+            if (!initAPI()) return;
+            
+            try {
+                // Test with a simple operation
+                const result = await apiService.insert_chat_id();
+                
+                if (result.success) {
+                    showResult('connection-result', {
+                        status: 'success',
+                        message: 'API connection successful',
+                        data: result.data
+                    }, 'success');
+                    log('✅ API connection test successful', 'success');
+                } else {
+                    showResult('connection-result', {
+                        status: 'error',
+                        message: 'API connection failed',
+                        error: result.message
+                    }, 'error');
+                    log('❌ API connection test failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showResult('connection-result', {
+                    status: 'error',
+                    message: 'API connection test failed',
+                    error: error.message
+                }, 'error');
+                log('❌ API connection test failed: ' + error.message, 'error');
+            }
+        }
+
+        // Test insert chat ID
+        async function testInsertChatId() {
+            log('📝 Testing insert_chat_id...', 'info');
+            
+            if (!initAPI()) return;
+            
+            try {
+                const result = await apiService.insert_chat_id();
+                
+                if (result.success) {
+                    currentChatId = result.data.chat_id;
+                    showResult('insert-result', {
+                        status: 'success',
+                        message: result.message,
+                        data: result.data
+                    }, 'success');
+                    log('✅ Chat ID inserted successfully: ' + currentChatId, 'success');
+                } else {
+                    showResult('insert-result', {
+                        status: 'error',
+                        message: result.message,
+                        error: result.error
+                    }, 'error');
+                    log('❌ Chat ID insertion failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showResult('insert-result', {
+                    status: 'error',
+                    message: 'Chat ID insertion failed',
+                    error: error.message
+                }, 'error');
+                log('❌ Chat ID insertion failed: ' + error.message, 'error');
+            }
+        }
+
+        // Test get chat by ID
+        async function testGetChatById() {
+            log('🔍 Testing get_chat_by_id...', 'info');
+            
+            if (!initAPI()) return;
+            
+            const chatId = document.getElementById('chat-id-input').value.trim() || currentChatId;
+            
+            if (!chatId) {
+                showResult('get-result', {
+                    status: 'error',
+                    message: 'Please provide a chat_id or run insert test first'
+                }, 'error');
+                log('❌ No chat_id provided', 'error');
+                return;
+            }
+            
+            try {
+                const result = await apiService.get_chat_by_id(chatId);
+                
+                if (result.success) {
+                    showResult('get-result', {
+                        status: 'success',
+                        message: result.message,
+                        data: result.data
+                    }, 'success');
+                    log('✅ Chat retrieved successfully for ID: ' + chatId, 'success');
+                } else {
+                    showResult('get-result', {
+                        status: 'error',
+                        message: result.message,
+                        error: result.error
+                    }, 'error');
+                    log('❌ Chat retrieval failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showResult('get-result', {
+                    status: 'error',
+                    message: 'Chat retrieval failed',
+                    error: error.message
+                }, 'error');
+                log('❌ Chat retrieval failed: ' + error.message, 'error');
+            }
+        }
+
+        // Test full flow
+        async function testFullFlow() {
+            log('🔄 Testing full flow...', 'info');
+            
+            if (!initAPI()) return;
+            
+            try {
+                // Step 1: Insert chat ID
+                log('Step 1: Inserting chat ID...', 'info');
+                const insertResult = await apiService.insert_chat_id();
+                
+                if (!insertResult.success) {
+                    showResult('flow-result', {
+                        status: 'error',
+                        message: 'Flow test failed at step 1',
+                        error: insertResult.message
+                    }, 'error');
+                    log('❌ Flow test failed at step 1: ' + insertResult.message, 'error');
+                    return;
+                }
+                
+                const chatId = insertResult.data.chat_id;
+                log('✅ Step 1 completed: Chat ID inserted - ' + chatId, 'success');
+                
+                // Step 2: Get chat by ID
+                log('Step 2: Retrieving chat by ID...', 'info');
+                const getResult = await apiService.get_chat_by_id(chatId);
+                
+                if (!getResult.success) {
+                    showResult('flow-result', {
+                        status: 'error',
+                        message: 'Flow test failed at step 2',
+                        error: getResult.message
+                    }, 'error');
+                    log('❌ Flow test failed at step 2: ' + getResult.message, 'error');
+                    return;
+                }
+                
+                log('✅ Step 2 completed: Chat retrieved successfully', 'success');
+                
+                // Show final result
+                showResult('flow-result', {
+                    status: 'success',
+                    message: 'Full flow test completed successfully',
+                    steps: {
+                        step1: {
+                            action: 'Insert chat ID',
+                            result: 'Success',
+                            chat_id: chatId
+                        },
+                        step2: {
+                            action: 'Retrieve chat by ID',
+                            result: 'Success',
+                            data_count: getResult.data ? getResult.data.length : 0
+                        }
+                    }
+                }, 'success');
+                
+                log('✅ Full flow test completed successfully', 'success');
+                
+            } catch (error) {
+                showResult('flow-result', {
+                    status: 'error',
+                    message: 'Full flow test failed',
+                    error: error.message
+                }, 'error');
+                log('❌ Full flow test failed: ' + error.message, 'error');
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Chat API Test Page Loaded', 'info');
+            initAPI();
+        });
+    </script>
+</body>
+</html> 

@@ -388,6 +388,7 @@
             this.currentState = 'menu'; // menu, waiting_for_national_id, waiting_for_question
             this.selectedOption = null;
             this.apiService = null;
+            this.chatId = null; // Store the chat_id for the current session
             this.init();
         }
 
@@ -406,6 +407,22 @@
                     // Verify the method exists
                     if (typeof this.apiService.get_invested_plans === 'function') {
                         console.log('✅ get_invested_plans method is available');
+                        
+                        // Check for insert_chat_id method
+                        if (typeof this.apiService.insert_chat_id === 'function') {
+                            console.log('✅ insert_chat_id method is available');
+                            
+                            // Check for insert_national_id method
+                            if (typeof this.apiService.insert_national_id === 'function') {
+                                console.log('✅ insert_national_id method is available');
+                            } else {
+                                console.log('❌ insert_national_id method is NOT available');
+                            }
+                        } else {
+                            console.log('❌ insert_chat_id method is NOT available');
+                            console.log('Available methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(this.apiService)));
+                            this.apiService = null; // Reset if method doesn't exist
+                        }
                     } else {
                         console.log('❌ get_invested_plans method is NOT available');
                         console.log('Available methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(this.apiService)));
@@ -434,7 +451,7 @@
         }
 
         bindEvents() {
-            this.toggleButton.addEventListener('click', () => this.toggle());
+            this.toggleButton.addEventListener('click', async () => await this.toggle());
             this.closeButton.addEventListener('click', () => this.close());
             this.sendButton.addEventListener('click', () => this.sendMessage());
             this.inputField.addEventListener('keypress', (e) => {
@@ -446,15 +463,15 @@
 
         }
 
-        toggle() {
+        async toggle() {
             if (this.isOpen) {
                 this.close();
             } else {
-                this.open();
+                await this.open();
             }
         }
 
-        open() {
+        async open() {
             this.container.style.display = 'flex';
             // Trigger animation after display is set
             setTimeout(() => {
@@ -462,6 +479,37 @@
             }, 10);
             this.isOpen = true;
             this.inputField.focus();
+            
+            // Generate new chat_id for this session if not already generated
+            if (!this.chatId && this.apiService) {
+                try {
+                    console.log('🔄 Generating new chat_id for this session...');
+                    const result = await this.apiService.insert_chat_id();
+                    
+                    if (result.success) {
+                        this.chatId = result.data.chat_id;
+                        console.log('✅ New chat session started with chat_id:', this.chatId);
+                        
+                        // Expose chat_id to global scope
+                        this.exposeChatId();
+                        
+                        // Add a subtle indicator that chat_id was generated (optional)
+                        // You can remove this if you don't want to show it to users
+                        console.log('📝 Chat session info:', {
+                            chat_id: this.chatId,
+                            created_at: result.data.created_at
+                        });
+                    } else {
+                        console.error('❌ Failed to generate chat_id:', result.message);
+                    }
+                } catch (error) {
+                    console.error('❌ Error generating chat_id:', error);
+                }
+            } else if (this.chatId) {
+                console.log('📝 Continuing existing chat session with chat_id:', this.chatId);
+            } else if (!this.apiService) {
+                console.log('⚠️ API service not available, skipping chat_id generation');
+            }
         }
 
         close() {
@@ -471,6 +519,10 @@
                 this.container.style.display = 'none';
             }, 300);
             this.isOpen = false;
+            
+            // Optionally reset chat session when closed
+            // Uncomment the next line if you want to start a fresh session every time the chatbot is closed
+            // this.resetChatSession();
         }
 
         sendWelcomeMessage() {
@@ -599,6 +651,11 @@
             const text = this.inputField.value.trim();
             if (!text) return;
 
+            // Log message with chat_id if available
+            if (this.chatId) {
+                console.log(`💬 Message sent in chat ${this.chatId}:`, text);
+            }
+
             this.addMessage(text, 'user');
             this.inputField.value = '';
 
@@ -640,42 +697,60 @@
                             const first_name = userData.first_name || 'کاربر';
                             const last_name = userData.last_name || 'عزیز';
                             
-                                                // Extract all invested plans from the data (each row represents one investment)
-                    const investedPlans = [];
-                    result.data.forEach(item => {
-                        if (item['plans - plan_id → persian_confirmed_symbol']) {
-                            const planSymbol = item['plans - plan_id → persian_confirmed_symbol'];
-                            investedPlans.push(planSymbol);
-                        }
-                    });
-                    
-                    // Create the message template
-                    let message = `${first_name} ${last_name} عزیز شما تا الان روی طرح های زیر سرمایه گذاری کرده اید:\n\n`;
-                    
-                    result.data.forEach((item, index) => {
-                        const planTitle = item['plans - plan_id → title'] || 'نامشخص';
-                        const planSymbol = item['plans - plan_id → persian_confirmed_symbol'] || 'نامشخص';
-                        const investmentAmount = item['transactions → amount'] || 'نامشخص';
-                        
-                        message += `🟠 نام طرح: ${planTitle}\n`;
-                        message += `🔸 نماد طرح: ${planSymbol}\n`;
-                        message += `🔸 مبلغ سرمایه گذاری شما: ${investmentAmount} تومان\n\n`;
-                    });
-                    
-                    message += `جهت بررسی اطلاعات هر طرح روی آن کلیک کنید`;
-                    
-                                                this.addMessage(message, 'bot');
+                            // Extract all invested plans from the data (each row represents one investment)
+                            const investedPlans = [];
+                            result.data.forEach(item => {
+                                if (item['plans - plan_id → persian_confirmed_symbol']) {
+                                    const planSymbol = item['plans - plan_id → persian_confirmed_symbol'];
+                                    investedPlans.push(planSymbol);
+                                }
+                            });
                             
-                                                // Add menu for all invested plans using plan titles and plan IDs
-                    const planSymbol = result.data.map(item => item['plans - plan_id → persian_confirmed_symbol'] || 'نامشخص');
-                    const planIds = result.data.map(item => item['plans - plan_id'] || item['transactions → plan_id'] || 'نامشخص');
-                    this.addPlansMenu(planSymbol, planIds);
+                            // Create the message template
+                            let message = `${first_name} ${last_name} عزیز شما تا الان روی طرح های زیر سرمایه گذاری کرده اید:\n\n`;
+                            
+                            result.data.forEach((item, index) => {
+                                const planTitle = item['plans - plan_id → title'] || 'نامشخص';
+                                const planSymbol = item['plans - plan_id → persian_confirmed_symbol'] || 'نامشخص';
+                                const investmentAmount = item['transactions → amount'] || 'نامشخص';
+                                
+                                message += `🟠 نام طرح: ${planTitle}\n`;
+                                message += `🔸 نماد طرح: ${planSymbol}\n`;
+                                message += `🔸 مبلغ سرمایه گذاری شما: ${investmentAmount} تومان\n\n`;
+                            });
+                            
+                            message += `جهت بررسی اطلاعات هر طرح روی آن کلیک کنید`;
+                            
+                            this.addMessage(message, 'bot');
+                            
+                            // Add menu for all invested plans using plan titles and plan IDs
+                            const planSymbol = result.data.map(item => item['plans - plan_id → persian_confirmed_symbol'] || 'نامشخص');
+                            const planIds = result.data.map(item => item['plans - plan_id'] || item['transactions → plan_id'] || 'نامشخص');
+                            this.addPlansMenu(planSymbol, planIds);
+                            
+                            // Insert national_id into chats table if we have a chat_id
+                            if (this.chatId && this.apiService && typeof this.apiService.insert_national_id === 'function') {
+                                try {
+                                    console.log(`🔄 Inserting national_id for chat ${this.chatId} and national_id ${nationalId}`);
+                                    const insertResult = await this.apiService.insert_national_id(nationalId, this.chatId);
+                                    
+                                    if (insertResult.success) {
+                                        console.log('✅ National ID inserted successfully:', insertResult.data);
+                                    } else {
+                                        console.warn('⚠️ Failed to insert national_id:', insertResult.message);
+                                    }
+                                } catch (insertError) {
+                                    console.error('❌ Error inserting national_id:', insertError);
+                                }
+                            } else {
+                                console.log('⚠️ Skipping national_id insertion - chat_id or API not available');
+                            }
                             
                         } else {
                             this.addMessage('❌ اطلاعاتی برای این کد ملی یافت نشد. لطفا با پشتیبانی تماس بگیرید.', 'bot');
                             this.addReturnToMainMenu();
                         }
-                                                        } catch (apiError) {
+                    } catch (apiError) {
                         console.error('API call failed:', apiError);
                         // Remove loading animation
                         if (loadingElement) {
@@ -926,6 +1001,47 @@
             };
             
             return statusMap[status] || status || 'نامشخص';
+        }
+
+        // Get current chat_id
+        getChatId() {
+            return this.chatId;
+        }
+
+        // Reset chat session (useful for starting a new conversation)
+        async resetChatSession() {
+            this.chatId = null;
+            this.messages = [];
+            this.currentState = 'menu';
+            this.selectedOption = null;
+            
+            // Clear messages container
+            if (this.messagesContainer) {
+                this.messagesContainer.innerHTML = '';
+            }
+            
+            // Send welcome message again
+            this.sendWelcomeMessage();
+            
+            console.log('🔄 Chat session reset');
+        }
+
+        // Get chat session info
+        getChatSessionInfo() {
+            return {
+                chat_id: this.chatId,
+                is_open: this.isOpen,
+                current_state: this.currentState,
+                message_count: this.messages.length
+            };
+        }
+
+        // Expose chat_id to global scope for external access
+        exposeChatId() {
+            if (this.chatId) {
+                window.currentChatId = this.chatId;
+                console.log('🌐 Chat ID exposed to global scope:', this.chatId);
+            }
         }
     }
 
