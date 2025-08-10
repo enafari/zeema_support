@@ -169,7 +169,7 @@
     // Chatbot configuration
     const config = {
         theme: {
-            primary: '#E26C2B',
+            primary: '#007AFF',
             secondary: '#ffffff',
             text: '#333333',
             textLight: '#666666',
@@ -217,24 +217,27 @@
             }
 
             .zeema-chatbot-toggle {
-                width: 60px;
-                height: 60px;
+                width: 120px;
+                height: 50px;
                 background: ${config.theme.primary};
-                border-radius: 50%;
+                border-radius: 25px;
                 border: none;
                 cursor: pointer;
-                box-shadow: 0 4px 12px rgba(226, 108, 43, 0.3);
+                box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
                 transition: all 0.3s ease;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 color: white;
-                font-size: 24px;
+                font-size: 13px;
+                font-weight: 500;
+                font-family: 'Vazirmatn', sans-serif;
+                padding: 0 15px;
             }
 
             .zeema-chatbot-toggle:hover {
                 transform: scale(1.1);
-                box-shadow: 0 6px 20px rgba(226, 108, 43, 0.4);
+                box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
             }
 
             .zeema-chatbot-container {
@@ -314,11 +317,11 @@
             }
 
             .zeema-message.user {
-                align-items: flex-end;
+                align-items: flex-start;
             }
 
             .zeema-message.bot {
-                align-items: flex-start;
+                align-items: flex-end;
             }
 
             .zeema-message-avatar {
@@ -347,14 +350,14 @@
             .zeema-message.user .zeema-message-content {
                 background: ${config.theme.primary};
                 color: white;
-                border-bottom-right-radius: 4px;
+                border-bottom-left-radius: 4px;
             }
 
             .zeema-message.bot .zeema-message-content {
                 background: white;
                 color: ${config.theme.text};
                 border: 1px solid ${config.theme.border};
-                border-bottom-left-radius: 4px;
+                border-bottom-right-radius: 4px;
             }
 
             .zeema-timestamp {
@@ -385,7 +388,7 @@
                 background: ${config.theme.primary};
                 color: white;
                 transform: translateX(-5px);
-                box-shadow: 0 4px 12px rgba(226, 108, 43, 0.3);
+                box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
             }
 
             .zeema-plans-menu {
@@ -552,7 +555,7 @@
 
             .zeema-send-button:hover {
                 transform: scale(1.1);
-                box-shadow: 0 4px 12px rgba(226, 108, 43, 0.3);
+                box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
             }
 
             .zeema-send-button:disabled {
@@ -563,8 +566,22 @@
 
             @media (max-width: 480px) {
                 .zeema-chatbot-container {
-                    width: 320px;
-                    height: 450px;
+                    width: 100vw;
+                    height: 100vh;
+                    bottom: 0;
+                    right: 0;
+                    border-radius: 0;
+                    position: fixed;
+                }
+                
+                .zeema-chatbot-header {
+                    border-radius: 0;
+                }
+                
+                .zeema-chatbot-toggle {
+                    width: 100px;
+                    height: 45px;
+                    font-size: 13px;
                 }
             }
         `;
@@ -576,7 +593,7 @@
         const div = document.createElement('div');
         div.className = 'zeema-chatbot';
         div.innerHTML = `
-            <button class="zeema-chatbot-toggle">زی</button>
+            <button class="zeema-chatbot-toggle">پشتیبانی زیما</button>
             <div class="zeema-chatbot-container">
                 <div class="zeema-chatbot-header">
                     <h3>پشتیبانی زیما</h3>
