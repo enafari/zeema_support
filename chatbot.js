@@ -24,7 +24,7 @@
                 "۱. پیگیری پرداخت سود طرح": "برای پیگیری پرداخت سود طرح، لطفا کد ملی خود را وارد کنید تا اطلاعات دقیق برای شما ارسال شود.",
                 "۲. اطلاعات طرح های سرمایه گذاری شده من": "برای مشاهده اطلاعات طرح‌های سرمایه‌گذاری شده، لطفا کد ملی خود را وارد کنید.",
                 "۳. مشاوره و راهنمایی": "کارشناسان ما آماده ارائه مشاوره و راهنمایی هستند. لطفا سوال خود را مطرح کنید تا در اسرع وقت پاسخ داده شود.",
-                "۴. اطلاع رسانی از طرح های جدید زیما": "برای اطلاع از طرح‌های جدید، لطفا شماره موبایل خود را وارد کنید تا از آخرین اخبار و طرح‌ها مطلع شوید.",
+                "۴. اطلاع رسانی از طرح های جدید زیما": "کاربر عزیز برای اطلاع رسانی از طرح های جدید زیما میتوانید ما را در شبکه های اجتماعی زیر دنبال کنید.\nاطلاع رسانی طرح های جدید تنها در کانال های زیر انجام خواهد شد",
                 "۵. سایر": "برای سایر سوالات و درخواست‌ها، لطفا با شماره پشتیبانی تماس بگیرید یا پیام خود را ارسال کنید."
             }
         }
@@ -252,6 +252,44 @@
                 color: #495057;
                 transform: translateX(-5px);
                 box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+            }
+
+            .zeema-social-menu-item {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border: 1px solid #667eea;
+                border-radius: 8px;
+                padding: 10px 12px;
+                margin-bottom: 8px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-size: 13px;
+                color: white;
+                line-height: 1.3;
+                font-weight: 500;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .zeema-social-menu-item:hover {
+                background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+                transform: translateX(-5px) scale(1.02);
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            }
+
+            .zeema-social-menu-item::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left 0.5s;
+            }
+
+            .zeema-social-menu-item:hover::before {
+                left: 100%;
             }
 
             .zeema-loading {
@@ -615,6 +653,45 @@
             this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
         }
 
+        addSocialMediaMenu() {
+            const menuDiv = document.createElement('div');
+            menuDiv.className = 'zeema-menu-items';
+            
+            const socialMediaItems = [
+                { label: 'کانال بله', link: 'http://ble.ir/Zeemacrowd' },
+                { label: 'کانال تلگرام', link: 'http://t.me/zeemacrowd' },
+                { label: 'پیج اینستاگرام', link: 'http://instagram.com/zeema.fund' }
+            ];
+            
+            socialMediaItems.forEach(item => {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'zeema-social-menu-item';
+                menuItem.textContent = item.label;
+                menuItem.addEventListener('click', () => {
+                    // Open link in new tab
+                    window.open(item.link, '_blank');
+                    // Add user message to show what was clicked
+                    this.addMessage(`انتخاب: ${item.label}`, 'user');
+                    // Show confirmation message
+                    setTimeout(() => {
+                        this.addMessage(`لینک ${item.label} در تب جدید باز شد.`, 'bot');
+                        this.addReturnToMainMenu();
+                    }, 500);
+                });
+                menuDiv.appendChild(menuItem);
+            });
+
+            // Add return to main menu item
+            const returnMenuItem = document.createElement('div');
+            returnMenuItem.className = 'zeema-menu-item zeema-return-menu';
+            returnMenuItem.textContent = 'بازگشت به منوی اصلی';
+            returnMenuItem.addEventListener('click', () => this.handleMenuClick('بازگشت به منوی اصلی'));
+            menuDiv.appendChild(returnMenuItem);
+
+            this.messagesContainer.appendChild(menuDiv);
+            this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+        }
+
         handleMenuClick(menuItem) {
             this.addMessage(menuItem, 'user');
             
@@ -632,6 +709,14 @@
                     this.selectedOption = menuItem;
                     this.currentState = 'waiting_for_national_id';
                     this.addMessage("لطفا کد ملی خود را وارد کنید:", 'bot');
+                } else if (menuItem === "۴. اطلاع رسانی از طرح های جدید زیما") {
+                    const response = config.messages.responses[menuItem];
+                    this.addMessage(response, 'bot');
+                    this.currentState = 'social_media_menu';
+                    // Add social media menu after the message
+                    setTimeout(() => {
+                        this.addSocialMediaMenu();
+                    }, 500);
                 } else {
                     const response = config.messages.responses[menuItem];
                     this.addMessage(response, 'bot');
