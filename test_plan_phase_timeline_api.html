@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Plan Phase Timeline API - Zeema Chatbot</title>
+    <style>
+        body {
+            font-family: 'Vazirmatn', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+            direction: rtl;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #E26C2B, #FF8C42);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .test-section h3 {
+            margin-top: 0;
+            color: #E26C2B;
+            font-size: 18px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        
+        .btn {
+            background: #E26C2B;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #d55a1a;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .result.info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #E26C2B;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Test Plan Phase Timeline API</h1>
+            <p>تست API جدول plan_phase_timeline</p>
+        </div>
+        
+        <div class="content">
+            <!-- API Description -->
+            <div class="test-section">
+                <h3>📋 API Description</h3>
+                <p><strong>Endpoint:</strong> <code>plan_phase_timeline</code></p>
+                <p><strong>Method:</strong> GET</p>
+                <p><strong>Input:</strong> List of plan_ids (comma-separated)</p>
+                <p><strong>Output:</strong> JSON array of plan phase timeline data</p>
+                <p><strong>Purpose:</strong> Retrieve plan phase timeline data for multiple plan IDs</p>
+            </div>
+            
+            <!-- Test Form -->
+            <div class="test-section">
+                <h3>🚀 Test Plan Phase Timeline API</h3>
+                
+                <div class="form-group">
+                    <label for="planIds">Plan IDs (comma-separated):</label>
+                    <textarea id="planIds" placeholder="Enter plan IDs separated by commas (e.g., 123,456,789)">123,456</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn" onclick="testPlanPhaseTimeline()">
+                        <span class="loading hidden" id="loading1"></span>
+                        🚀 Test API
+                    </button>
+                    <button class="btn btn-secondary" onclick="testMultiplePlanIds()">🔄 Multiple Tests</button>
+                    <button class="btn btn-warning" onclick="testErrorCases()">⚠️ Error Cases</button>
+                    <button class="btn btn-success" onclick="loadSampleData()">📊 Sample Data</button>
+                </div>
+                
+                <div id="result1" class="result info">
+                    Click "Test API" to start testing...
+                </div>
+            </div>
+            
+            <!-- API Information -->
+            <div class="test-section">
+                <h3>ℹ️ API Information</h3>
+                <ul>
+                    <li><strong>Table:</strong> plan_phase_timeline</li>
+                    <li><strong>Filter:</strong> plan_id (multiple values supported)</li>
+                    <li><strong>Query Format:</strong> plan_id=in.(id1,id2,id3)</li>
+                    <li><strong>Response:</strong> JSON array of timeline data</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="api_service.js"></script>
+    <script>
+        const apiService = new ZeemaAPIService();
+        
+        async function testPlanPhaseTimeline() {
+            const planIdsInput = document.getElementById('planIds').value.trim();
+            const resultDiv = document.getElementById('result1');
+            const loading = document.getElementById('loading1');
+            
+            if (!planIdsInput) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Please enter plan IDs';
+                return;
+            }
+            
+            // Show loading
+            loading.classList.remove('hidden');
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '🔄 Testing API...';
+            
+            try {
+                // Parse plan IDs
+                const planIds = planIdsInput.split(',').map(id => id.trim()).filter(id => id);
+                
+                if (planIds.length === 0) {
+                    throw new Error('No valid plan IDs provided');
+                }
+                
+                console.log('Testing with plan IDs:', planIds);
+                
+                // Call the API
+                const response = await apiService.get_plan_phase_timeline(planIds);
+                
+                // Hide loading
+                loading.classList.add('hidden');
+                
+                if (response.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Success!\n\n📊 Data Count: ${response.data ? response.data.length : 0}\n\n📝 Message: ${response.message}\n\n📄 Data:\n${JSON.stringify(response.data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Error!\n\n📝 Message: ${response.message}\n\n🔍 Error Details:\n${JSON.stringify(response.error, null, 2)}`;
+                }
+                
+            } catch (error) {
+                // Hide loading
+                loading.classList.add('hidden');
+                
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Unexpected Error!\n\n📝 Error: ${error.message}\n\n🔍 Stack Trace:\n${error.stack}`;
+            }
+        }
+        
+        async function testMultiplePlanIds() {
+            const testCases = [
+                ['123', '456'],
+                ['ABC123', 'DEF456'],
+                ['TEST_PLAN_1', 'TEST_PLAN_2'],
+                ['123']
+            ];
+            
+            const resultDiv = document.getElementById('result1');
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '🔄 Running multiple tests...\n\n';
+            
+            for (let i = 0; i < testCases.length; i++) {
+                const planIds = testCases[i];
+                resultDiv.textContent += `\n📝 Test ${i + 1}: ${planIds.join(', ')}\n`;
+                
+                try {
+                    const response = await apiService.get_plan_phase_timeline(planIds);
+                    if (response.success) {
+                        resultDiv.textContent += `✅ Success - Data count: ${response.data ? response.data.length : 0}\n`;
+                    } else {
+                        resultDiv.textContent += `❌ Error: ${response.message}\n`;
+                    }
+                } catch (error) {
+                    resultDiv.textContent += `❌ Exception: ${error.message}\n`;
+                }
+                
+                // Small delay between tests
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            resultDiv.textContent += '\n🎯 Multiple tests completed!';
+        }
+        
+        async function testErrorCases() {
+            const resultDiv = document.getElementById('result1');
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '🔄 Testing error cases...\n\n';
+            
+            // Test 1: Empty array
+            resultDiv.textContent += '📝 Test 1: Empty array\n';
+            try {
+                const response = await apiService.get_plan_phase_timeline([]);
+                if (!response.success) {
+                    resultDiv.textContent += `✅ Expected error: ${response.message}\n`;
+                } else {
+                    resultDiv.textContent += `❌ Unexpected success\n`;
+                }
+            } catch (error) {
+                resultDiv.textContent += `✅ Expected exception: ${error.message}\n`;
+            }
+            
+            // Test 2: Invalid input (null)
+            resultDiv.textContent += '\n📝 Test 2: Null input\n';
+            try {
+                const response = await apiService.get_plan_phase_timeline(null);
+                if (!response.success) {
+                    resultDiv.textContent += `✅ Expected error: ${response.message}\n`;
+                } else {
+                    resultDiv.textContent += `❌ Unexpected success\n`;
+                }
+            } catch (error) {
+                resultDiv.textContent += `✅ Expected exception: ${error.message}\n`;
+            }
+            
+            // Test 3: Invalid input (string instead of array)
+            resultDiv.textContent += '\n📝 Test 3: String instead of array\n';
+            try {
+                const response = await apiService.get_plan_phase_timeline('123');
+                if (!response.success) {
+                    resultDiv.textContent += `✅ Expected error: ${response.message}\n`;
+                } else {
+                    resultDiv.textContent += `❌ Unexpected success\n`;
+                }
+            } catch (error) {
+                resultDiv.textContent += `✅ Expected exception: ${error.message}\n`;
+            }
+            
+            resultDiv.textContent += '\n🎯 Error case tests completed!';
+        }
+        
+        function loadSampleData() {
+            const planIdsInput = document.getElementById('planIds');
+            planIdsInput.value = '123,456,789,ABC123,DEF456';
+            
+            const resultDiv = document.getElementById('result1');
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '📊 Sample data loaded!\n\nPlan IDs: 123,456,789,ABC123,DEF456\n\nClick "Test API" to test with these sample plan IDs.';
+        }
+        
+        // Auto-test on page load
+        window.addEventListener('load', function() {
+            console.log('🧪 Plan Phase Timeline API Test Page Loaded');
+            console.log('Available methods:');
+            console.log('- testPlanPhaseTimeline()');
+            console.log('- testMultiplePlanIds()');
+            console.log('- testErrorCases()');
+            console.log('- loadSampleData()');
+        });
+    </script>
+</body>
+</html> 

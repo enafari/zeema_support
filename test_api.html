@@ -385,6 +385,12 @@
                         </button>
                     </li>
                     <li class="api-item">
+                        <button class="api-button" onclick="showAPI('get_plan_phase_timeline')">
+                            <div class="method-badge">GET</div>
+                            get_plan_phase_timeline
+                        </button>
+                    </li>
+                    <li class="api-item">
                         <button class="api-button" onclick="showAPI('insert_chat_id')">
                             <div class="method-badge">POST</div>
                             insert_chat_id
@@ -467,6 +473,38 @@
 
                     <div class="result-container">
                         <div id="result2" class="result"></div>
+                    </div>
+                </div>
+
+                <!-- get_plan_phase_timeline API Section -->
+                <div id="get_plan_phase_timeline" class="api-section">
+                    <h2>📅 Get Plan Phase Timeline API</h2>
+                    
+                    <div class="api-description">
+                        <h3>🔍 Description</h3>
+                        <p>Retrieves plan phase timeline data from the Supabase plan_phase_timeline table based on a list of plan IDs.</p>
+                        <p><strong>Endpoint:</strong> <span class="endpoint-badge">plan_phase_timeline</span></p>
+                        <p><strong>Filter:</strong> <span class="endpoint-badge">plan_id</span> (multiple values supported)</p>
+                        <p><strong>Returns:</strong> Array of plan phase timeline data matching the provided plan IDs</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="planIds">Plan IDs (comma-separated):</label>
+                        <input type="text" id="planIds" placeholder="Enter plan IDs separated by commas (e.g., 123,456,789)" value="123,456">
+                    </div>
+
+                    <div class="test-buttons">
+                        <button class="btn btn-primary" onclick="testGetPlanPhaseTimeline()">
+                            <span class="loading-spinner" id="spinner6" style="display: none;"></span>
+                            🚀 Test API
+                        </button>
+                        <button class="btn btn-secondary" onclick="testMultiplePlanPhaseTimeline()">🔄 Multiple Tests</button>
+                        <button class="btn btn-warning" onclick="testErrorCasesPlanPhaseTimeline()">⚠️ Error Cases</button>
+                        <button class="btn btn-success" onclick="loadSampleData('planIds', '123,456,789')">📊 Sample Data</button>
+                    </div>
+
+                    <div class="result-container">
+                        <div id="result6" class="result"></div>
                     </div>
                 </div>
 
@@ -944,6 +982,162 @@
             showResult(resultId, results, 'info');
         }
 
+        // Test get_plan_phase_timeline API
+        async function testGetPlanPhaseTimeline() {
+            const planIdsInput = document.getElementById('planIds').value.trim();
+            const planIds = planIdsInput.split(',').map(id => id.trim());
+            const resultId = 'result6';
+            const spinnerId = 'spinner6';
+            
+            if (planIds.length === 0 || planIds.some(id => !id)) {
+                showResult(resultId, '❌ Please enter at least one valid plan ID.', 'error');
+                return;
+            }
+            
+            showSpinner(spinnerId);
+            showResult(resultId, '🔄 Testing get_plan_phase_timeline API...', 'loading');
+            
+            const startTime = Date.now();
+            
+            try {
+                const response = await apiService.get_plan_phase_timeline(planIds);
+                const responseTime = Date.now() - startTime;
+                
+                updateStats(response.success, responseTime);
+                
+                let resultText = '';
+                
+                if (response.success) {
+                    resultText += `✅ API Test Successful!\n\n`;
+                    resultText += `📝 Message: ${response.message}\n`;
+                    resultText += `⏱️ Response Time: ${responseTime}ms\n\n`;
+                    
+                    if (response.data && response.data.length > 0) {
+                        resultText += `📊 Plan Phase Timeline Data:\n`;
+                        resultText += `<div class="json-display">${JSON.stringify(response.data, null, 2)}</div>\n\n`;
+                        
+                        resultText += `📋 Summary:\n`;
+                        response.data.forEach((timeline, index) => {
+                            resultText += `- Plan ID: ${timeline.plan_id} (Phase: ${timeline.phase_name || 'Unnamed'})\n`;
+                            resultText += `  Start Date: ${timeline.start_date || 'N/A'}\n`;
+                            resultText += `  End Date: ${timeline.end_date || 'N/A'}\n`;
+                            resultText += `  Status: ${timeline.status || 'Unknown'}\n`;
+                            resultText += `  Description: ${timeline.description || 'No description'}\n`;
+                            resultText += `  Created At: ${timeline.created_at || 'N/A'}\n`;
+                            resultText += `  Updated At: ${timeline.updated_at || 'N/A'}\n`;
+                            resultText += `  ID: ${timeline.id}\n\n`;
+                        });
+                    } else {
+                        resultText += `ℹ️ No plan phase timeline data found for provided plan IDs: ${planIdsInput}`;
+                    }
+                    
+                    showResult(resultId, resultText, 'success');
+                } else {
+                    resultText += `❌ API Test Failed!\n\n`;
+                    resultText += `📝 Error Message: ${response.message}\n`;
+                    resultText += `⏱️ Response Time: ${responseTime}ms\n`;
+                    
+                    if (response.error) {
+                        resultText += `🔍 Error Details:\n`;
+                        resultText += `- Name: ${response.error.name}\n`;
+                        resultText += `- Message: ${response.error.message}\n`;
+                    }
+                    
+                    showResult(resultId, resultText, 'error');
+                }
+                
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                updateStats(false, responseTime);
+                
+                showResult(resultId, `💥 Unexpected Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms`, 'error');
+            } finally {
+                hideSpinner(spinnerId);
+            }
+        }
+
+        // Multiple tests for get_plan_phase_timeline
+        async function testMultiplePlanPhaseTimeline() {
+            const testInputs = [
+                '123,456,789',
+                'ABC123,TEST_PLAN,111',
+                '999,000,123',
+                'invalid,plan,ids'
+            ];
+            const resultId = 'result6';
+            
+            showResult(resultId, '🔄 Running multiple tests for get_plan_phase_timeline...\n\n', 'loading');
+            
+            let results = '';
+            
+            for (const input of testInputs) {
+                const startTime = Date.now();
+                try {
+                    const planIds = input.split(',').map(id => id.trim());
+                    const response = await apiService.get_plan_phase_timeline(planIds);
+                    const responseTime = Date.now() - startTime;
+                    
+                    updateStats(response.success, responseTime);
+                    
+                    results += `🔍 Test with plan IDs: ${input}\n`;
+                    results += `📝 Result: ${response.success ? '✅ Success' : '❌ Failed'}\n`;
+                    results += `📝 Message: ${response.message}\n`;
+                    results += `⏱️ Response Time: ${responseTime}ms\n`;
+                    results += `📊 Records: ${response.data ? response.data.length : 0}\n\n`;
+                    
+                } catch (error) {
+                    const responseTime = Date.now() - startTime;
+                    updateStats(false, responseTime);
+                    
+                    results += `🔍 Test with plan IDs: ${input}\n`;
+                    results += `❌ Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms\n\n`;
+                }
+            }
+            
+            showResult(resultId, results, 'info');
+        }
+
+        // Error cases for get_plan_phase_timeline
+        async function testErrorCasesPlanPhaseTimeline() {
+            const errorInputs = [
+                'invalid,plan,ids',
+                'null,undefined,empty',
+                '123,invalid,plan',
+                '123,123,123', // All valid, should return data
+                ''
+            ];
+            const resultId = 'result6';
+            
+            showResult(resultId, '⚠️ Testing error cases for get_plan_phase_timeline...\n\n', 'loading');
+            
+            let results = '';
+            
+            for (const input of errorInputs) {
+                const startTime = Date.now();
+                try {
+                    const planIds = input.split(',').map(id => id.trim());
+                    const response = await apiService.get_plan_phase_timeline(planIds);
+                    const responseTime = Date.now() - startTime;
+                    
+                    updateStats(response.success, responseTime);
+                    
+                    results += `🔍 Test with plan IDs: "${input}"\n`;
+                    results += `📝 Result: ${response.success ? '✅ Success' : '❌ Failed'}\n`;
+                    results += `📝 Message: ${response.message}\n`;
+                    results += `⏱️ Response Time: ${responseTime}ms\n\n`;
+                    
+                } catch (error) {
+                    const responseTime = Date.now() - startTime;
+                    updateStats(false, responseTime);
+                    
+                    results += `🔍 Test with plan IDs: "${input}"\n`;
+                    results += `❌ Error: ${error.message}\n⏱️ Response Time: ${responseTime}ms\n\n`;
+                }
+            }
+            
+            showResult(resultId, results, 'info');
+        }
+
         // Test insert_chat_id API
         async function testInsertChatId() {
             const resultId = 'result3';
@@ -1373,7 +1567,7 @@
         // Initialize on page load
         window.addEventListener('load', () => {
             console.log('🚀 Zeema API Testing Interface Loaded');
-            console.log('✅ Available APIs: get_invested_plans, get_plan_phase, insert_chat_id, insert_national_id, get_chat_by_id');
+            console.log('✅ Available APIs: get_invested_plans, get_plan_phase, get_plan_phase_timeline, insert_chat_id, insert_national_id, get_chat_by_id');
             
             // Debug: Check if methods are available
             console.log('🔍 Debug: Checking if chat methods are available...');

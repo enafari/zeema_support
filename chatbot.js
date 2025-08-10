@@ -389,6 +389,8 @@
             this.selectedOption = null;
             this.apiService = null;
             this.chatId = null; // Store the chat_id for the current session
+            this.storedPlanIds = []; // Store plan IDs for timeline functionality
+            this.storedInvestedPlansData = []; // Store complete data for persian_confirmed_symbol
             this.init();
         }
 
@@ -723,10 +725,20 @@
                             
                             this.addMessage(message, 'bot');
                             
-                            // Add menu for all invested plans using plan titles and plan IDs
-                            const planSymbol = result.data.map(item => item['plans - plan_id → persian_confirmed_symbol'] || 'نامشخص');
+                            // Store plan IDs and complete data for later use in timeline API
                             const planIds = result.data.map(item => item['plans - plan_id'] || item['transactions → plan_id'] || 'نامشخص');
-                            this.addPlansMenu(planSymbol, planIds);
+                            this.storedPlanIds = planIds; // Store for timeline API
+                            this.storedInvestedPlansData = result.data; // Store complete data for persian_confirmed_symbol
+                            
+                            // Handle different menu options
+                            if (this.selectedOption === "۱. پیگیری پرداخت سود طرح") {
+                                // Show plan menu for individual plan selection
+                                const planSymbols = result.data.map(item => item['plans - plan_id → persian_confirmed_symbol'] || 'نامشخص');
+                                this.addPlansMenu(planSymbols, planIds);
+                            } else if (this.selectedOption === "۲. اطلاعات طرح های سرمایه گذاری شده من") {
+                                // Show timeline menu for timeline view
+                                this.addTimelineMenu();
+                            }
                             
                             // Insert national_id into chats table if we have a chat_id
                             if (this.chatId && this.apiService && typeof this.apiService.insert_national_id === 'function') {
@@ -1042,6 +1054,119 @@
                 window.currentChatId = this.chatId;
                 console.log('🌐 Chat ID exposed to global scope:', this.chatId);
             }
+        }
+
+        addTimelineMenu() {
+            const menuDiv = document.createElement('div');
+            menuDiv.className = 'zeema-menu-items';
+            
+            const timelineMenuItem = document.createElement('div');
+            timelineMenuItem.className = 'zeema-menu-item';
+            timelineMenuItem.textContent = '1. مشاهده زمان بندی واریز سود ها';
+            timelineMenuItem.addEventListener('click', () => this.handleTimelineClick());
+            menuDiv.appendChild(timelineMenuItem);
+
+            // Add return to main menu item
+            const returnMenuItem = document.createElement('div');
+            returnMenuItem.className = 'zeema-menu-item zeema-return-menu';
+            returnMenuItem.textContent = 'بازگشت به منوی اصلی';
+            returnMenuItem.addEventListener('click', () => this.handleMenuClick('بازگشت به منوی اصلی'));
+            menuDiv.appendChild(returnMenuItem);
+
+            this.messagesContainer.appendChild(menuDiv);
+            this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+        }
+
+        async handleTimelineClick() {
+            if (!this.storedPlanIds || this.storedPlanIds.length === 0) {
+                this.addMessage('❌ اطلاعات زمان‌بندی سرمایه گذاری برای این طرح یافت نشد.', 'bot');
+                this.addReturnToMainMenu();
+                return;
+            }
+
+            this.addMessage('1. مشاهده زمان بندی واریز سود ها', 'user');
+            
+            // Remove existing menu
+            const existingMenu = this.messagesContainer.querySelector('.zeema-menu-items');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+
+            // Show loading message
+            const loadingMessage = this.addMessage('📊 در حال بارگذاری زمان‌بندی واریز سودها...', 'bot');
+
+            try {
+                if (this.apiService && typeof this.apiService.get_plan_phase_timeline === 'function') {
+                    console.log('Calling get_plan_phase_timeline API for plan IDs:', this.storedPlanIds);
+                    const result = await this.apiService.get_plan_phase_timeline(this.storedPlanIds);
+                    
+                    // Remove loading message
+                    if (loadingMessage) {
+                        loadingMessage.remove();
+                    }
+                    
+                    if (result.success && result.data && result.data.length > 0) {
+                        // Sort data by start_date in ascending order
+                        const sortedData = result.data.sort((a, b) => {
+                            const dateA = new Date(a.start_date || '1900-01-01');
+                            const dateB = new Date(b.start_date || '1900-01-01');
+                            return dateA - dateB;
+                        });
+
+                        let message = '📅 زمان‌بندی واریز سودها:\n\n';
+                        
+                        // Process each item sequentially to handle async date conversion
+                        for (const item of sortedData) {
+                            const startDate = item.start_date ? await this.convertToSolarCalendar(item.start_date) : 'نامشخص';
+                            const title = item.title || item.phase_name || 'نامشخص';
+                            const planId = item.plan_id || 'نامشخص';
+                            const percent = item.percent || item.percentage || 'نامشخص';
+                            const status = this.mapStatusToPersian(item.status);
+                            
+                            // Get persian_confirmed_symbol from stored data
+                            let persianConfirmedSymbol = 'نامشخص';
+                            if (this.storedInvestedPlansData && this.storedInvestedPlansData.length > 0) {
+                                const matchingPlan = this.storedInvestedPlansData.find(plan => 
+                                    (plan['plans - plan_id'] || plan['transactions → plan_id']) === planId
+                                );
+                                if (matchingPlan) {
+                                    persianConfirmedSymbol = matchingPlan['plans - plan_id → persian_confirmed_symbol'] || 'نامشخص';
+                                }
+                            }
+                            
+                            // Choose icon based on status
+                            const statusIcon = item.status === 'done' ? '✅' : '🟦';
+                            
+                            message += `${statusIcon} ${startDate}\n`;
+                            message += `🔹 ${title} / ${persianConfirmedSymbol}\n`;
+                            message += `🔹 میزان سود: ${percent} درصد از کل مبلغ سرمایه گذاری\n`;
+                            message += `🔹 وضعیت: ${status}\n\n`;
+                        }
+                        
+                        this.addMessage(message, 'bot');
+                    } else {
+                        this.addMessage('❌ اطلاعات زمان‌بندی برای این طرح یافت نشد.', 'bot');
+                    }
+                } else {
+                    // Remove loading message
+                    if (loadingMessage) {
+                        loadingMessage.remove();
+                    }
+                    this.addMessage('❌ سرویس API برای دریافت زمان‌بندی در دسترس نیست. لطفا با پشتیبانی تماس بگیرید.', 'bot');
+                }
+            } catch (error) {
+                console.error('Error fetching timeline data:', error);
+                
+                // Remove loading message
+                if (loadingMessage) {
+                    loadingMessage.remove();
+                }
+                
+                this.addMessage('❌ خطا در دریافت اطلاعات زمان‌بندی. لطفا دوباره تلاش کنید.', 'bot');
+            }
+            
+            // Add return to main menu
+            this.addReturnToMainMenu();
         }
     }
 

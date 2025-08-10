@@ -220,6 +220,112 @@ class ZeemaAPIService {
         }
     }
 
+    // Get plan phase timeline by plan IDs list
+    async get_plan_phase_timeline(planIds) {
+        try {
+            console.log(`🔍 Fetching plan phase timeline for plan IDs: ${planIds}`);
+            
+            // Validate input
+            if (!planIds || !Array.isArray(planIds) || planIds.length === 0) {
+                throw new Error('Invalid planIds provided - must be a non-empty array');
+            }
+            
+            // Convert to strings and clean the plan IDs
+            const cleanPlanIds = planIds.map(planId => String(planId).trim()).filter(planId => planId);
+            console.log(`🧹 Cleaned plan IDs: ${cleanPlanIds}`);
+            
+            if (cleanPlanIds.length === 0) {
+                throw new Error('No valid plan IDs provided');
+            }
+            
+            // Build the query with multiple plan_ids using 'in' operator
+            console.log('📋 Querying plan_phase_timeline table...');
+            
+            // Format plan_ids for 'in' operator
+            const planIdsStr = cleanPlanIds.map(planId => `"${planId}"`).join(',');
+            const queryUrl = `${this.supabaseUrl}/rest/v1/plan_phase_timeline?plan_id=in.(${planIdsStr})&select=*`;
+            console.log('Query URL:', queryUrl);
+            
+            const response = await fetch(queryUrl, {
+                method: 'GET',
+                headers: this.baseHeaders,
+                mode: 'cors'
+            });
+            
+            console.log('Query response status:', response.status);
+            console.log('Query response headers:', Object.fromEntries(response.headers.entries()));
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Query failed:', errorText);
+                
+                // Try alternative query format using multiple 'eq' conditions
+                console.log('🔄 Trying alternative query format with multiple eq conditions...');
+                
+                // Create multiple query parameters
+                const queryParams = cleanPlanIds.map(planId => `plan_id=eq.${encodeURIComponent(planId)}`).join('&');
+                const altQueryUrl = `${this.supabaseUrl}/rest/v1/plan_phase_timeline?${queryParams}&select=*`;
+                console.log('Alternative query URL:', altQueryUrl);
+                
+                const altResponse = await fetch(altQueryUrl, {
+                    method: 'GET',
+                    headers: this.baseHeaders,
+                    mode: 'cors'
+                });
+                
+                console.log('Alternative query status:', altResponse.status);
+                
+                if (!altResponse.ok) {
+                    const altErrorText = await altResponse.text();
+                    console.error('Alternative query also failed:', altErrorText);
+                    throw new Error(`HTTP error! status: ${altResponse.status}, details: ${altErrorText}`);
+                }
+                
+                const data = await altResponse.json();
+                console.log('✅ Alternative query successful, data:', data);
+                
+                return {
+                    success: true,
+                    data: data,
+                    message: data.length > 0 ? 'Plan phase timeline retrieved successfully' : 'No plan phase timeline found for the provided plan IDs'
+                };
+            }
+            
+            const data = await response.json();
+            console.log('✅ Query successful, data:', data);
+            
+            return {
+                success: true,
+                data: data,
+                message: data.length > 0 ? 'Plan phase timeline retrieved successfully' : 'No plan phase timeline found for the provided plan IDs'
+            };
+            
+        } catch (error) {
+            console.error('❌ Error fetching plan phase timeline:', error);
+            
+            // Provide more detailed error information
+            let errorMessage = error.message;
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                errorMessage = 'Network error - please check your internet connection';
+            } else if (error.message.includes('CORS')) {
+                errorMessage = 'CORS error - please check browser settings';
+            } else if (error.message.includes('timeout')) {
+                errorMessage = 'Request timeout - please try again';
+            }
+            
+            return {
+                success: false,
+                data: null,
+                message: `Error: ${errorMessage}`,
+                error: {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                }
+            };
+        }
+    }
+
     // Format data for display
     formatInvestedPlansData(data) {
         if (!data || data.length === 0) {
