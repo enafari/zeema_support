@@ -25,7 +25,7 @@
                 "۲. اطلاعات طرح های سرمایه گذاری شده من": "برای مشاهده اطلاعات طرح‌های سرمایه‌گذاری شده، لطفا کد ملی خود را وارد کنید.",
                 "۳. مشاوره و راهنمایی": "کارشناسان ما آماده ارائه مشاوره و راهنمایی هستند. لطفا سوال خود را مطرح کنید تا در اسرع وقت پاسخ داده شود.",
                 "۴. اطلاع رسانی از طرح های جدید زیما": "کاربر عزیز برای اطلاع رسانی از طرح های جدید زیما میتوانید ما را در شبکه های اجتماعی زیر دنبال کنید.\nاطلاع رسانی طرح های جدید تنها در کانال های زیر انجام خواهد شد",
-                "۵. سایر": "برای سایر سوالات و درخواست‌ها، لطفا با شماره پشتیبانی تماس بگیرید یا پیام خود را ارسال کنید."
+                "۵. سایر": "برای کدام یک از موارد زیر نیاز به پشتیبانی دارید؟"
             }
         }
     };
@@ -601,7 +601,7 @@
 
             if (sender === 'bot') {
                 messageDiv.innerHTML = `
-                    <div class="zeema-message-avatar">زی</div>
+                    <div class="zeema-message-avatar">🤖</div>
                     <div class="zeema-message-content">${formattedText}</div>
                     <div class="zeema-timestamp">${timestamp}</div>
                 `;
@@ -634,7 +634,7 @@
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'zeema-loading';
             loadingDiv.innerHTML = `
-                <div class="zeema-message-avatar">زی</div>
+                <div class="zeema-message-avatar">🤖</div>
                 <div class="zeema-loading-dots">
                     <div class="zeema-loading-dot"></div>
                     <div class="zeema-loading-dot"></div>
@@ -709,6 +709,60 @@
             this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
         }
 
+        addOtherMenu() {
+            const menuDiv = document.createElement('div');
+            menuDiv.className = 'zeema-menu-items';
+            
+            const otherItems = [
+                "۱. موعد واریز سودم امروز هستش ولی هنوز سودی برام واریز نشده",
+                "۲. جواب سوالم رو پیدا نکردم"
+            ];
+            
+            otherItems.forEach(item => {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'zeema-menu-item';
+                menuItem.textContent = item;
+                menuItem.addEventListener('click', () => this.handleOtherMenuClick(item));
+                menuDiv.appendChild(menuItem);
+            });
+
+            // Add return to main menu item
+            const returnMenuItem = document.createElement('div');
+            returnMenuItem.className = 'zeema-menu-item zeema-return-menu';
+            returnMenuItem.textContent = 'بازگشت به منوی اصلی';
+            returnMenuItem.addEventListener('click', () => this.handleMenuClick('بازگشت به منوی اصلی'));
+            menuDiv.appendChild(returnMenuItem);
+
+            this.messagesContainer.appendChild(menuDiv);
+            this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+        }
+
+        handleOtherMenuClick(menuItem) {
+            this.addMessage(menuItem, 'user');
+            
+            // Remove existing menu items
+            const existingMenu = this.messagesContainer.querySelector('.zeema-menu-items');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+
+            // Handle different other menu options
+            setTimeout(() => {
+                if (menuItem === "۱. موعد واریز سودم امروز هستش ولی هنوز سودی برام واریز نشده") {
+                    const response = "این موضوع می‌تواند دو حالت داشته باشد:\n\nروز کاری – چنانچه موعد واریز سود در یک روز کاری باشد، پرداخت همان روز در حال پردازش است و حداکثر ظرف ۲۴ ساعت آینده به حساب شما واریز خواهد شد.\n\nروز غیرکاری – در صورتی که موعد واریز سود در روز غیرکاری (مانند تعطیلات رسمی) باشد، پرداخت در اولین روز کاری پس از آن انجام می‌شود.\n\nدر صورت بروز هرگونه تأخیر در پرداخت سود، اطلاع‌رسانی لازم به کلیه سرمایه‌گذاران آن طرح انجام خواهد شد.";
+                    this.addMessage(response, 'bot');
+                } else if (menuItem === "۲. جواب سوالم رو پیدا نکردم") {
+                    const response = "اگر جواب سوالات خود را پیدا نکردید میتوانید با پشتیبانی ما تماس بگیرید\n021-92008828";
+                    this.addMessage(response, 'bot');
+                }
+                
+                // Add return to main menu after response
+                setTimeout(() => {
+                    this.addReturnToMainMenu();
+                }, 1000);
+            }, 500);
+        }
+
         handleMenuClick(menuItem) {
             this.addMessage(menuItem, 'user');
             
@@ -725,7 +779,7 @@
                 } else if (menuItem === "۱. پیگیری پرداخت سود طرح" || menuItem === "۲. اطلاعات طرح های سرمایه گذاری شده من") {
                     this.selectedOption = menuItem;
                     this.currentState = 'waiting_for_national_id';
-                    this.addMessage("لطفا کد ملی خود را وارد کنید:", 'bot');
+                    this.addMessage("لطفا کد ملی خود را وارد کنید:\n(کیبورد خود را انگلیسی کنید)", 'bot');
                 } else if (menuItem === "۴. اطلاع رسانی از طرح های جدید زیما") {
                     const response = config.messages.responses[menuItem];
                     this.addMessage(response, 'bot');
@@ -733,6 +787,14 @@
                     // Add social media menu after the message
                     setTimeout(() => {
                         this.addSocialMediaMenu();
+                    }, 500);
+                } else if (menuItem === "۵. سایر") {
+                    const response = config.messages.responses[menuItem];
+                    this.addMessage(response, 'bot');
+                    this.currentState = 'other_menu';
+                    // Add other menu after the message
+                    setTimeout(() => {
+                        this.addOtherMenu();
                     }, 500);
                 } else {
                     const response = config.messages.responses[menuItem];
@@ -820,7 +882,7 @@
                                 
                                 message += `🟠 نام طرح: ${planTitle}\n`;
                                 message += `🔸 نماد طرح: ${planSymbol}\n`;
-                                message += `🔸 مبلغ سرمایه گذاری شما: ${investmentAmount} تومان\n\n`;
+                                message += `💵 مبلغ سرمایه گذاری شما: ${investmentAmount} تومان\n\n`;
                             });
                             
                             message += `جهت بررسی اطلاعات هر طرح روی آن کلیک کنید`;
@@ -1041,7 +1103,9 @@
                 const percent = phase.percent || phase.percentage || 'نامشخص';
                 const status = this.mapStatusToPersian(phase.status);
                 
-                message += `⚪️ ${title}\n`;
+                // Use checkmark for done status, circle for others
+                const statusIcon = phase.status === 'done' ? '✅' : '⚪️';
+                message += `${statusIcon} ${title}\n`;
                 message += `▪️ تاریخ: ${startDate}\n`;
                 message += `▪️ میزان سود: ${percent} درصد\n`;
                 message += `▪️ وضعیت: ${status}\n\n`;

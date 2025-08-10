@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست منوی سایر - زیما چت بات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .test-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        .test-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .test-description {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .test-steps {
+            text-align: right;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .test-steps h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .test-steps ol {
+            color: #666;
+            line-height: 1.8;
+            padding-right: 20px;
+        }
+        
+        .test-steps li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="test-title">تست منوی سایر</h1>
+        <p class="test-description">
+            این صفحه برای تست عملکرد منوی "۵. سایر" و زیرمنوهای آن طراحی شده است.
+        </p>
+        
+        <div class="test-steps">
+            <h3>مراحل تست:</h3>
+            <ol>
+                <li>روی دکمه چت بات در گوشه سمت راست پایین کلیک کنید</li>
+                <li>از منوی اصلی گزینه "۵. سایر" را انتخاب کنید</li>
+                <li>پیام "برای کدام یک از موارد زیر نیاز به پشتیبانی دارید؟" باید نمایش داده شود</li>
+                <li>زیرمنو با دو گزینه نمایش داده می‌شود:
+                    <ul style="margin-top: 10px; padding-right: 20px;">
+                        <li>۱. موعد واریز سودم امروز هستش ولی هنوز سودی برام واریز نشده</li>
+                        <li>۲. جواب سوالم رو پیدا نکردم</li>
+                    </ul>
+                </li>
+                <li>هر کدام از گزینه‌ها را انتخاب کنید تا پاسخ مربوطه نمایش داده شود</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- API Service Script -->
+    <script src="api_service.js?v=1.0.1"></script>
+    <!-- Chatbot Widget Script -->
+    <script src="chatbot.js?v=1.0.1"></script>
+</body>
+</html> 
