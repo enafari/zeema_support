@@ -15,14 +15,14 @@
             welcome: "سلام کاربر عزیز به پشتیبانی سکو زیما خوش آمدید!\nلطفا موضوع درخواست خود را از گزینه های زیر انتخاب کنید",
             menuItems: [
                 "۱. پیگیری پرداخت سود طرح",
-                "۲. اطلاعات طرح های سرمایه گذاری شده من",
+                "۲. سرمایه گذاری های من",
                 "۳. مشاوره و راهنمایی",
                 "۴. اطلاع رسانی از طرح های جدید زیما",
                 "۵. سایر"
             ],
             responses: {
                 "۱. پیگیری پرداخت سود طرح": "برای پیگیری پرداخت سود طرح، لطفا کد ملی خود را وارد کنید تا اطلاعات دقیق برای شما ارسال شود.",
-                "۲. اطلاعات طرح های سرمایه گذاری شده من": "برای مشاهده اطلاعات طرح‌های سرمایه‌گذاری شده، لطفا کد ملی خود را وارد کنید.",
+                "۲. سرمایه گذاری های من": "برای مشاهده اطلاعات طرح‌های سرمایه‌گذاری شده، لطفا کد ملی خود را وارد کنید.",
                 "۳. مشاوره و راهنمایی": "کارشناسان ما آماده ارائه مشاوره و راهنمایی هستند. لطفا سوال خود را مطرح کنید تا در اسرع وقت پاسخ داده شود.",
                 "۴. اطلاع رسانی از طرح های جدید زیما": "کاربر عزیز برای اطلاع رسانی از طرح های جدید زیما میتوانید ما را در شبکه های اجتماعی زیر دنبال کنید.\nاطلاع رسانی طرح های جدید تنها در کانال های زیر انجام خواهد شد",
                 "۵. سایر": "برای کدام یک از موارد زیر نیاز به پشتیبانی دارید؟"
@@ -199,16 +199,17 @@
             }
 
             .zeema-menu-item {
-                background: white;
+                background: rgba(0, 122, 255, 0.2);
                 border: 1px solid ${config.theme.border};
                 border-radius: 8px;
-                padding: 8px 12px;
+                padding: 11px 17px;
                 margin-bottom: 6px;
                 cursor: pointer;
                 transition: all 0.3s ease;
                 font-size: 13px;
                 color: ${config.theme.text};
                 line-height: 1.3;
+                font-weight: bold;
             }
 
             .zeema-menu-item:hover {
@@ -223,24 +224,24 @@
             }
 
             .zeema-plan-item {
-                background: #e8f5e8;
-                border: 1px solid #4caf50;
+                background: rgba(0, 122, 255, 0.2);
+                border: 1px solid ${config.theme.border};
                 border-radius: 8px;
-                padding: 8px 12px;
+                padding: 11px 17px;
                 margin-bottom: 6px;
                 cursor: pointer;
                 transition: all 0.3s ease;
                 font-size: 13px;
-                color: #2e7d32;
-                font-weight: 500;
+                color: ${config.theme.text};
                 line-height: 1.3;
+                font-weight: bold;
             }
 
             .zeema-plan-item:hover {
-                background: #4caf50;
+                background: ${config.theme.primary};
                 color: white;
                 transform: translateX(-5px);
-                box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+                box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
             }
 
             .zeema-return-menu {
@@ -258,41 +259,24 @@
             }
 
             .zeema-social-menu-item {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                border: 1px solid #667eea;
+                background: rgba(0, 122, 255, 0.2);
+                border: 1px solid ${config.theme.border};
                 border-radius: 8px;
-                padding: 10px 12px;
-                margin-bottom: 8px;
+                padding: 11px 17px;
+                margin-bottom: 6px;
                 cursor: pointer;
                 transition: all 0.3s ease;
                 font-size: 13px;
-                color: white;
+                color: ${config.theme.text};
                 line-height: 1.3;
-                font-weight: 500;
-                text-align: center;
-                position: relative;
-                overflow: hidden;
+                font-weight: bold;
             }
 
             .zeema-social-menu-item:hover {
-                background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-                transform: translateX(-5px) scale(1.02);
-                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-            }
-
-            .zeema-social-menu-item::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: -100%;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-                transition: left 0.5s;
-            }
-
-            .zeema-social-menu-item:hover::before {
-                left: 100%;
+                background: ${config.theme.primary};
+                color: white;
+                transform: translateX(-5px);
+                box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
             }
 
             .zeema-loading {
@@ -346,12 +330,19 @@
                 background: white;
                 border-top: 1px solid ${config.theme.border};
                 display: flex;
+                flex-direction: row-reverse;
                 align-items: center;
                 gap: 10px;
+                display: none;
+            }
+
+            .zeema-input-container.show {
+                display: flex;
             }
 
             .zeema-input-field {
                 flex: 1;
+                min-width: 0;
                 border: 1px solid ${config.theme.border};
                 border-radius: 20px;
                 padding: 10px 15px;
@@ -372,6 +363,8 @@
                 border-radius: 50%;
                 width: 40px;
                 height: 40px;
+                min-width: 40px;
+                flex-shrink: 0;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
@@ -429,7 +422,17 @@
                 <div class="zeema-chatbot-messages"></div>
                 <div class="zeema-input-container">
                     <input type="text" class="zeema-input-field" placeholder="پیام خود را بنویسید...">
-                    <button class="zeema-send-button">→</button>
+                    <button class="zeema-send-button">
+                        <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <title>Iconly/Bulk/Send</title>
+                            <g stroke="none" stroke-width="1.5" fill="none" fill-rule="evenodd">
+                                <g transform="translate(2.000000, 2.000000)" fill="#ffffff" fill-rule="nonzero">
+                                    <path d="M19.4274202,0.578298605 C18.9274202,0.0672986048 18.1874202,-0.121701395 17.4974202,0.0782986048 L1.40742017,4.7272986 C0.679420165,4.9292986 0.163420165,5.5062986 0.024420165,6.2382986 C-0.117579835,6.9842986 0.378420165,7.9322986 1.02642017,8.3282986 L6.05742017,11.4002986 C6.57342017,11.7162986 7.23942017,11.6372986 7.66642017,11.2092986 L13.4274202,5.4482986 C13.7174202,5.1472986 14.1974202,5.1472986 14.4874202,5.4482986 C14.7774202,5.7372986 14.7774202,6.2082986 14.4874202,6.5082986 L8.71642017,12.2692986 C8.28842017,12.6972986 8.20842017,13.3612986 8.52342017,13.8782986 L11.5974202,18.9282986 C11.9574202,19.5272986 12.5774202,19.8682986 13.2574202,19.8682986 C13.3374202,19.8682986 13.4274202,19.8682986 13.5074202,19.8572986 C14.2874202,19.7582986 14.9074202,19.2272986 15.1374202,18.4772986 L19.9074202,2.5082986 C20.1174202,1.8282986 19.9274202,1.0882986 19.4274202,0.578298605" id="Fill-1"></path>
+                                    <path d="M7.45142017,17.1421986 C7.74342017,17.4351986 7.74342017,17.9101986 7.45142017,18.2031986 L6.08542017,19.5681986 C5.93942017,19.7151986 5.74742017,19.7881986 5.55542017,19.7881986 C5.36342017,19.7881986 5.17142017,19.7151986 5.02542017,19.5681986 C4.73242017,19.2751986 4.73242017,18.8011986 5.02542017,18.5081986 L6.39042017,17.1421986 C6.68342017,16.8501986 7.15842017,16.8501986 7.45142017,17.1421986 Z M6.66772017,13.3541986 C6.95972017,13.6471986 6.95972017,14.1221986 6.66772017,14.4151986 L5.30172017,15.7801986 C5.15572017,15.9271986 4.96372017,16.0001986 4.77172017,16.0001986 C4.57972017,16.0001986 4.38772017,15.9271986 4.24172017,15.7801986 C3.94872017,15.4871986 3.94872017,15.0131986 4.24172017,14.7201986 L5.60672017,13.3541986 C5.89972017,13.0621986 6.37472017,13.0621986 6.66772017,13.3541986 Z M2.90652017,12.1617986 C3.19852017,12.4547986 3.19852017,12.9297986 2.90652017,13.2227986 L1.54052017,14.5877986 C1.39452017,14.7347986 1.20252017,14.8077986 1.01052017,14.8077986 C0.818520165,14.8077986 0.626520165,14.7347986 0.480520165,14.5877986 C0.187520165,14.2947986 0.187520165,13.8207986 0.480520165,13.5277986 L1.84552017,12.1617986 C2.13852017,11.8697986 2.61352017,11.8697986 2.90652017,12.1617986 Z" id="Combined-Shape" opacity="0.400000006"></path>
+                                </g>
+                            </g>
+                        </svg>
+                    </button>
                 </div>
             </div>
         `;
@@ -585,6 +588,7 @@
         sendWelcomeMessage() {
             this.addMessage(config.messages.welcome, 'bot');
             this.addMenuItems();
+            this.hideInputContainer();
         }
 
         addMessage(text, sender) {
@@ -622,7 +626,7 @@
             
             const returnMenuItem = document.createElement('div');
             returnMenuItem.className = 'zeema-menu-item zeema-return-menu';
-            returnMenuItem.textContent = 'بازگشت به منوی اصلی';
+            returnMenuItem.textContent = '↩️ بازگشت به منوی اصلی';
             returnMenuItem.addEventListener('click', () => this.handleMenuClick('بازگشت به منوی اصلی'));
             menuDiv.appendChild(returnMenuItem);
 
@@ -662,7 +666,7 @@
             // Add return to main menu item
             const returnMenuItem = document.createElement('div');
             returnMenuItem.className = 'zeema-menu-item zeema-return-menu';
-            returnMenuItem.textContent = 'بازگشت به منوی اصلی';
+            returnMenuItem.textContent = '↩️ بازگشت به منوی اصلی';
             returnMenuItem.addEventListener('click', () => this.handleMenuClick('بازگشت به منوی اصلی'));
             menuDiv.appendChild(returnMenuItem);
 
@@ -701,7 +705,7 @@
             // Add return to main menu item
             const returnMenuItem = document.createElement('div');
             returnMenuItem.className = 'zeema-menu-item zeema-return-menu';
-            returnMenuItem.textContent = 'بازگشت به منوی اصلی';
+            returnMenuItem.textContent = '↩️ بازگشت به منوی اصلی';
             returnMenuItem.addEventListener('click', () => this.handleMenuClick('بازگشت به منوی اصلی'));
             menuDiv.appendChild(returnMenuItem);
 
@@ -729,7 +733,7 @@
             // Add return to main menu item
             const returnMenuItem = document.createElement('div');
             returnMenuItem.className = 'zeema-menu-item zeema-return-menu';
-            returnMenuItem.textContent = 'بازگشت به منوی اصلی';
+            returnMenuItem.textContent = '↩️ بازگشت به منوی اصلی';
             returnMenuItem.addEventListener('click', () => this.handleMenuClick('بازگشت به منوی اصلی'));
             menuDiv.appendChild(returnMenuItem);
 
@@ -756,6 +760,8 @@
                     this.addMessage(response, 'bot');
                 }
                 
+                this.hideInputContainer();
+                
                 // Add return to main menu after response
                 setTimeout(() => {
                     this.addReturnToMainMenu();
@@ -776,14 +782,21 @@
             setTimeout(() => {
                 if (menuItem === "بازگشت به منوی اصلی") {
                     this.returnToMainMenu();
-                } else if (menuItem === "۱. پیگیری پرداخت سود طرح" || menuItem === "۲. اطلاعات طرح های سرمایه گذاری شده من") {
+                } else if (menuItem === "۱. پیگیری پرداخت سود طرح" || menuItem === "۲. سرمایه گذاری های من") {
                     this.selectedOption = menuItem;
                     this.currentState = 'waiting_for_national_id';
                     this.addMessage("لطفا کد ملی خود را وارد کنید:\n(کیبورد خود را انگلیسی کنید)", 'bot');
+                    this.showInputContainer();
+                } else if (menuItem === "۳. مشاوره و راهنمایی") {
+                    this.selectedOption = menuItem;
+                    this.currentState = 'waiting_for_question';
+                    this.addMessage("لطفا سوال خود را مطرح کنید:", 'bot');
+                    this.showInputContainer();
                 } else if (menuItem === "۴. اطلاع رسانی از طرح های جدید زیما") {
                     const response = config.messages.responses[menuItem];
                     this.addMessage(response, 'bot');
                     this.currentState = 'social_media_menu';
+                    this.hideInputContainer();
                     // Add social media menu after the message
                     setTimeout(() => {
                         this.addSocialMediaMenu();
@@ -792,6 +805,7 @@
                     const response = config.messages.responses[menuItem];
                     this.addMessage(response, 'bot');
                     this.currentState = 'other_menu';
+                    this.hideInputContainer();
                     // Add other menu after the message
                     setTimeout(() => {
                         this.addOtherMenu();
@@ -800,6 +814,7 @@
                     const response = config.messages.responses[menuItem];
                     this.addMessage(response, 'bot');
                     this.currentState = 'menu';
+                    this.hideInputContainer();
                 }
             }, 500);
         }
@@ -809,6 +824,21 @@
             this.selectedOption = null;
             this.addMessage(config.messages.welcome, 'bot');
             this.addMenuItems();
+            this.hideInputContainer();
+        }
+
+        showInputContainer() {
+            const inputContainer = this.element.querySelector('.zeema-input-container');
+            if (inputContainer) {
+                inputContainer.classList.add('show');
+            }
+        }
+
+        hideInputContainer() {
+            const inputContainer = this.element.querySelector('.zeema-input-container');
+            if (inputContainer) {
+                inputContainer.classList.remove('show');
+            }
         }
 
 
@@ -899,10 +929,13 @@
                                 // Show plan menu for individual plan selection
                                 const planSymbols = result.data.map(item => item['plans - plan_id → persian_confirmed_symbol'] || 'نامشخص');
                                 this.addPlansMenu(planSymbols, planIds);
-                            } else if (this.selectedOption === "۲. اطلاعات طرح های سرمایه گذاری شده من") {
+                            } else if (this.selectedOption === "۲. سرمایه گذاری های من") {
                                 // Show timeline menu for timeline view
                                 this.addTimelineMenu();
                             }
+                            
+                            // Hide input container after successful national ID processing
+                            this.hideInputContainer();
                             
                             // Insert national_id into chats table if we have a chat_id
                             if (this.chatId && this.apiService && typeof this.apiService.insert_national_id === 'function') {
@@ -978,7 +1011,7 @@
             // Add return to main menu item
             const returnMenuItem = document.createElement('div');
             returnMenuItem.className = 'zeema-menu-item zeema-return-menu';
-            returnMenuItem.textContent = 'بازگشت به منوی اصلی';
+            returnMenuItem.textContent = '↩️ بازگشت به منوی اصلی';
             returnMenuItem.addEventListener('click', () => this.handleMenuClick('بازگشت به منوی اصلی'));
             menuDiv.appendChild(returnMenuItem);
 
@@ -1065,7 +1098,7 @@
             // Add return to main menu item
             const returnMenuItem = document.createElement('div');
             returnMenuItem.className = 'zeema-menu-item zeema-return-menu';
-            returnMenuItem.textContent = 'بازگشت به منوی اصلی';
+            returnMenuItem.textContent = '↩️ بازگشت به منوی اصلی';
             returnMenuItem.addEventListener('click', () => this.handleMenuClick('بازگشت به منوی اصلی'));
             menuDiv.appendChild(returnMenuItem);
 
@@ -1235,7 +1268,7 @@
             // Add return to main menu item
             const returnMenuItem = document.createElement('div');
             returnMenuItem.className = 'zeema-menu-item zeema-return-menu';
-            returnMenuItem.textContent = 'بازگشت به منوی اصلی';
+            returnMenuItem.textContent = '↩️ بازگشت به منوی اصلی';
             returnMenuItem.addEventListener('click', () => this.handleMenuClick('بازگشت به منوی اصلی'));
             menuDiv.appendChild(returnMenuItem);
 
