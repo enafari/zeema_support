@@ -1137,7 +1137,7 @@
                 const status = this.mapStatusToPersian(phase.status);
                 
                 // Use checkmark for done status, circle for others
-                const statusIcon = phase.status === 'done' ? '✅' : '⚪️';
+                const statusIcon = phase.status === 'done' ? '✅' : '🟡';
                 message += `${statusIcon} ${title}\n`;
                 message += `▪️ تاریخ: ${startDate}\n`;
                 message += `▪️ میزان سود: ${percent} درصد\n`;
@@ -1207,8 +1207,8 @@
         mapStatusToPersian(status) {
             const statusMap = {
                 'done': 'انجام شده',
-                'pending': 'در انتظار',
-                'in_progress': 'در حال انجام'
+                'pending': 'سررسید نشده',
+                'in_progress': 'سررسید نشده'
             };
             
             return statusMap[status] || status || 'نامشخص';
@@ -1334,12 +1334,13 @@
                             }
                             
                             // Choose icon based on status
-                            const statusIcon = item.status === 'done' ? '✅' : '🟦';
-                            
+                            const statusIcon = item.status === 'done' ? '✅' : '🟨';
+                            const statusIcon2 = item.status === 'done' ? '🔹' : '🔸';
+
                             message += `${statusIcon} ${startDate}\n`;
-                            message += `🔹 ${title} / ${persianConfirmedSymbol}\n`;
-                            message += `🔹 میزان سود: ${percent} درصد از کل مبلغ سرمایه گذاری\n`;
-                            message += `🔹 وضعیت: ${status}\n\n`;
+                            message += `${statusIcon2} ${title} / ${persianConfirmedSymbol}\n`;
+                            message += `${statusIcon2} میزان سود: ${percent} درصد از کل مبلغ سرمایه گذاری\n`;
+                            message += `${statusIcon2} وضعیت: ${status}\n\n`;
                         }
                         
                         this.addMessage(message, 'bot');
