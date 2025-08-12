@@ -903,7 +903,7 @@
                             });
                             
                             // Create the message template
-                            let message = `${first_name} ${last_name} عزیز شما تا الان روی طرح های زیر سرمایه گذاری کرده اید:\n\n`;
+                            let message = `<strong>${first_name} ${last_name}</strong> عزیز شما تا الان روی طرح های زیر سرمایه گذاری کرده اید:</strong>\n\n`;
                             
                             result.data.forEach((item, index) => {
                                 const planTitle = item['plans - plan_id → title'] || 'نامشخص';
@@ -1259,7 +1259,7 @@
                     percentText += ' + بازگشت اصل سرمایه';
                 }
                 
-                message += `${statusIcon} ${title}\n`;
+                message += `${statusIcon} <strong>${title}</strong>\n`;
                 message += `${statusIcon2} تاریخ: ${startDate}\n`;
                 message += `${statusIcon2} میزان سود: ${percentText}\n`;
                 message += `${statusIcon2} وضعیت: ${finalStatus}\n\n`;
@@ -1507,7 +1507,7 @@
                                 percentText += ' + بازگشت اصل سرمایه';
                             }
 
-                            message += `${statusIcon} ${startDate}\n`;
+                            message += `${statusIcon} <strong>${startDate}</strong>\n`;
                             message += `${statusIcon2} ${title} / ${persianConfirmedSymbol}\n`;
                             message += `${statusIcon2} میزان سود: ${percentText} \n`;
                             message += `${statusIcon2} وضعیت: ${finalStatus}\n\n`;
