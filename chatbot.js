@@ -1188,7 +1188,10 @@
             
             // Get today's date for comparison
             const today = new Date();
-            const todayString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+            // Use local date string to avoid timezone issues
+            const todayString = today.getFullYear() + '-' + 
+                               String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                               String(today.getDate()).padStart(2, '0');
             
             console.log('🔍 Debug - Today\'s date:', todayString);
             
@@ -1208,26 +1211,27 @@
                 });
                 
                 // Determine status based on phase.status and date comparison
-                let finalStatus, statusIcon;
+                let finalStatus, statusIcon, statusIcon2;
                 
                 // More robust date comparison
                 let isDateDue = false;
                 if (phase.start_date) {
                     try {
-                        // Convert both dates to Date objects for proper comparison
+                        // Convert phase date to YYYY-MM-DD format for direct string comparison
                         const phaseDate = new Date(phase.start_date);
-                        const todayDate = new Date(todayString);
+                        const phaseYear = phaseDate.getFullYear();
+                        const phaseMonth = String(phaseDate.getMonth() + 1).padStart(2, '0');
+                        const phaseDay = String(phaseDate.getDate()).padStart(2, '0');
+                        const phaseDateString = `${phaseYear}-${phaseMonth}-${phaseDay}`;
                         
-                        // Reset time to start of day for fair comparison
-                        phaseDate.setHours(0, 0, 0, 0);
-                        todayDate.setHours(0, 0, 0, 0);
-                        
-                        isDateDue = phaseDate <= todayDate;
+                        // Simple string comparison - YYYY-MM-DD format allows direct comparison
+                        isDateDue = phaseDateString <= todayString;
                         
                         console.log('🔍 Debug - Date comparison:', {
-                            phaseDate: phaseDate.toISOString(),
-                            todayDate: todayDate.toISOString(),
-                            isDateDue: isDateDue
+                            phaseDateString: phaseDateString,
+                            todayString: todayString,
+                            isDateDue: isDateDue,
+                            comparison: `${phaseDateString} <= ${todayString}`
                         });
                     } catch (error) {
                         console.error('Error comparing dates:', error);
@@ -1238,12 +1242,15 @@
                 if (phase.status === 'done') {
                     finalStatus = 'انجام شده';
                     statusIcon = '✅';
+                    statusIcon2 = '❇️';
                 } else if (phase.status === 'in_progress' && isDateDue) {
                     finalStatus = 'در حال انجام';
                     statusIcon = '🔵';
+                    statusIcon2 = '🔹';
                 } else {
                     finalStatus = 'سررسید نشده';
                     statusIcon = '🟡';
+                    statusIcon2 = '🔸';
                 }
                 
                 // Add special text for specific title
@@ -1253,13 +1260,13 @@
                 }
                 
                 message += `${statusIcon} ${title}\n`;
-                message += `▪️ تاریخ: ${startDate}\n`;
-                message += `▪️ میزان سود: ${percentText}\n`;
-                message += `▪️ وضعیت: ${finalStatus}\n\n`;
+                message += `${statusIcon2} تاریخ: ${startDate}\n`;
+                message += `${statusIcon2} میزان سود: ${percentText}\n`;
+                message += `${statusIcon2} وضعیت: ${finalStatus}\n\n`;
             }
             
             // Add menu items
-            message += 'جهت کسب اطلاعات بیشتر یکی از گزینه های یر انتخاب کنید\n\n';
+            message += 'جهت کسب اطلاعات بیشتر یکی از گزینه های زیر انتخاب کنید\n\n';
             
             return message;
         }
@@ -1426,7 +1433,13 @@
                             return dateA - dateB;
                         });
 
-                        let message = '📅 زمان‌بندی واریز سودها:\n\n';
+                        // Get today's date for comparison
+                        const today = new Date();
+                        const todayString = today.getFullYear() + '-' + 
+                                           String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                                           String(today.getDate()).padStart(2, '0');
+
+                        let message = '🗓 زمان‌بندی واریز سودها:\n\n';
                         
                         // Process each item sequentially to handle async date conversion
                         for (const item of sortedData) {
@@ -1434,7 +1447,6 @@
                             const title = item.title || item.phase_name || 'نامشخص';
                             const planId = item.plan_id || 'نامشخص';
                             const percent = item.percent || item.percentage || 'نامشخص';
-                            const status = this.mapStatusToPersian(item.status);
                             
                             // Get persian_confirmed_symbol from stored data
                             let persianConfirmedSymbol = 'نامشخص';
@@ -1447,14 +1459,58 @@
                                 }
                             }
                             
-                            // Choose icon based on status
-                            const statusIcon = item.status === 'done' ? '✅' : '🟨';
-                            const statusIcon2 = item.status === 'done' ? '🔹' : '🔸';
+                            let finalStatus, statusIcon, statusIcon2;
+
+                            let isDateDue = false;
+                            if (item.start_date) {
+                                try {
+                                    // Convert phase date to YYYY-MM-DD format for direct string comparison
+                                    const phaseDate = new Date(item.start_date);
+                                    const phaseYear = phaseDate.getFullYear();
+                                    const phaseMonth = String(phaseDate.getMonth() + 1).padStart(2, '0');
+                                    const phaseDay = String(phaseDate.getDate()).padStart(2, '0');
+                                    const phaseDateString = `${phaseYear}-${phaseMonth}-${phaseDay}`;
+                                    
+                                    // Simple string comparison - YYYY-MM-DD format allows direct comparison
+                                    isDateDue = phaseDateString <= todayString;
+                                    
+                                    console.log('🔍 Debug - Date comparison:', {
+                                        phaseDateString: phaseDateString,
+                                        todayString: todayString,
+                                        isDateDue: isDateDue,
+                                        comparison: `${phaseDateString} <= ${todayString}`
+                                    });
+                                } catch (error) {
+                                    console.error('Error comparing dates:', error);
+                                    isDateDue = false;
+                                }
+                            }
+
+                            // Determine status based on item.status and date comparison
+                            if (item.status === 'done') {
+                                finalStatus = 'انجام شده';
+                                statusIcon = '✅';
+                                statusIcon2 = '❇️';
+                            } else if (item.status === 'in_progress' && isDateDue) {
+                                finalStatus = 'در حال انجام';
+                                statusIcon = '🔵';
+                                statusIcon2 = '🔹';
+                            } else {
+                                finalStatus = 'سررسید نشده';
+                                statusIcon = '🟡';
+                                statusIcon2 = '🔸';
+                            }
+
+                            // Add special text for specific title
+                            let percentText = `${percent} درصد`;
+                            if (title === 'واریز سود چهارم و بازپرداخت اصل سرمایه') {
+                                percentText += ' + بازگشت اصل سرمایه';
+                            }
 
                             message += `${statusIcon} ${startDate}\n`;
                             message += `${statusIcon2} ${title} / ${persianConfirmedSymbol}\n`;
-                            message += `${statusIcon2} میزان سود: ${percent} درصد از کل مبلغ سرمایه گذاری\n`;
-                            message += `${statusIcon2} وضعیت: ${status}\n\n`;
+                            message += `${statusIcon2} میزان سود: ${percentText} \n`;
+                            message += `${statusIcon2} وضعیت: ${finalStatus}\n\n`;
                         }
                         
                         this.addMessage(message, 'bot');
