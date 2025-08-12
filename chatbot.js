@@ -592,6 +592,9 @@
         }
 
         addMessage(text, sender) {
+            // Hide all existing menu items when a new message is added
+            this.hideAllMenuItems();
+            
             const messageDiv = document.createElement('div');
             messageDiv.className = `zeema-message ${sender}`;
             
@@ -618,6 +621,16 @@
 
             this.messagesContainer.appendChild(messageDiv);
             this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+        }
+
+        hideAllMenuItems() {
+            // Remove all menu items from the messages container
+            const menuItems = this.messagesContainer.querySelectorAll('.zeema-menu-items');
+            menuItems.forEach(menu => menu.remove());
+            
+            // Also remove plan menus
+            const planMenus = this.messagesContainer.querySelectorAll('.zeema-plans-menu');
+            planMenus.forEach(menu => menu.remove());
         }
 
         addReturnToMainMenu() {
@@ -662,13 +675,6 @@
                 menuItem.addEventListener('click', () => this.handleMenuClick(item));
                 menuDiv.appendChild(menuItem);
             });
-
-            // Add return to main menu item
-            const returnMenuItem = document.createElement('div');
-            returnMenuItem.className = 'zeema-menu-item zeema-return-menu';
-            returnMenuItem.textContent = '↩️ بازگشت به منوی اصلی';
-            returnMenuItem.addEventListener('click', () => this.handleMenuClick('بازگشت به منوی اصلی'));
-            menuDiv.appendChild(returnMenuItem);
 
             this.messagesContainer.appendChild(menuDiv);
             this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
@@ -787,6 +793,10 @@
                     this.currentState = 'waiting_for_national_id';
                     this.addMessage("لطفا کد ملی خود را وارد کنید:\n(کیبورد خود را انگلیسی کنید)", 'bot');
                     this.showInputContainer();
+                    // Add return to main menu button
+                    setTimeout(() => {
+                        this.addReturnToMainMenu();
+                    }, 500);
                 } else if (menuItem === "۳. مشاوره و راهنمایی") {
                     this.selectedOption = menuItem;
                     this.currentState = 'waiting_for_question';
