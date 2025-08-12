@@ -1050,11 +1050,8 @@
                         
                         this.addMessage(formattedMessage, 'bot');
                         
-                        // Add menu for plan phases using titles
-                        const phaseTitles = result.data.map(phase => 
-                            phase.title || phase.phase_name || 'نامشخص'
-                        );
-                        this.addPhaseMenu(phaseTitles);
+                        // Add the new menu for plan phases status
+                        this.addPlanPhaseStatusMenu();
                         
                     } else {
                         this.addMessage('❌ اطلاعاتی برای این طرح یافت نشد.', 'bot');
@@ -1083,6 +1080,42 @@
             }
         }
 
+        addPlanPhaseStatusMenu() {
+            const menuDiv = document.createElement('div');
+            menuDiv.className = 'zeema-menu-items';
+            
+            // Menu item 1
+            const menuItem1 = document.createElement('div');
+            menuItem1.className = 'zeema-menu-item';
+            menuItem1.textContent = '۱. موعد واریز سودم رسیده ولی هنوز سودی برام پرداخت نشده';
+            menuItem1.addEventListener('click', () => this.handlePlanPhaseStatusClick('موعد واریز سودم رسیده ولی هنوز سودی برام پرداخت نشده'));
+            menuDiv.appendChild(menuItem1);
+
+            // Menu item 2
+            const menuItem2 = document.createElement('div');
+            menuItem2.className = 'zeema-menu-item';
+            menuItem2.textContent = '۲. وضعیت سررسید نشده به چه معناست؟';
+            menuItem2.addEventListener('click', () => this.handlePlanPhaseStatusClick('وضعیت سررسید نشده به چه معناست؟'));
+            menuDiv.appendChild(menuItem2);
+
+            // Menu item 3
+            const menuItem3 = document.createElement('div');
+            menuItem3.className = 'zeema-menu-item';
+            menuItem3.textContent = '۳. مشاهده جزئیات تراکنش پرداخت سودها';
+            menuItem3.addEventListener('click', () => this.handlePlanPhaseStatusClick('مشاهده جزئیات تراکنش پرداخت سودها'));
+            menuDiv.appendChild(menuItem3);
+
+            // Add return to main menu item
+            const returnMenuItem = document.createElement('div');
+            returnMenuItem.className = 'zeema-menu-item zeema-return-menu';
+            returnMenuItem.textContent = '↩️ بازگشت به منوی اصلی';
+            returnMenuItem.addEventListener('click', () => this.handleMenuClick('بازگشت به منوی اصلی'));
+            menuDiv.appendChild(returnMenuItem);
+
+            this.messagesContainer.appendChild(menuDiv);
+            this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+        }
+
         addPhaseMenu(phases) {
             const menuDiv = document.createElement('div');
             menuDiv.className = 'zeema-plans-menu';
@@ -1104,6 +1137,30 @@
 
             this.messagesContainer.appendChild(menuDiv);
             this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+        }
+
+        handlePlanPhaseStatusClick(menuItem) {
+            this.addMessage(menuItem, 'user');
+            
+            // Remove existing menu
+            const existingMenu = this.messagesContainer.querySelector('.zeema-menu-items');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+
+            // Handle different menu items
+            setTimeout(() => {
+                if (menuItem === 'موعد واریز سودم رسیده ولی هنوز سودی برام پرداخت نشده') {
+                    this.addMessage('چنانچه موعد واریز سود در یک روز کاری باشد، پرداخت همان روز در حال انجام است و حداکثر ظرف ۲۴ ساعت آینده از طریق شبا به حساب شما واریز خواهد شد.\n\nدر صورتی که موعد واریز سود در روز غیرکاری (مانند تعطیلات رسمی) باشد، پرداخت در اولین روز کاری پس از آن انجام می‌شود.\n\nدر صورت بروز هرگونه تأخیر در پرداخت سود، اطلاع‌رسانی لازم به کلیه سرمایه‌گذاران آن طرح انجام خواهد شد', 'bot');
+                    this.addReturnToMainMenu();
+                } else if (menuItem === 'وضعیت سررسید نشده به چه معناست؟') {
+                    this.addMessage('این وضعیت به این معناست که هنوز موعد واریز سود این طرح نرسیده است.', 'bot');
+                    this.addReturnToMainMenu();
+                } else if (menuItem === 'مشاهده جزئیات تراکنش پرداخت سودها') {
+                    this.addMessage('🔍 در حال بارگذاری جزئیات تراکنش...', 'bot');
+                    this.addReturnToMainMenu();
+                }
+            }, 500);
         }
 
         handlePhaseClick(phaseName) {
@@ -1129,23 +1186,80 @@
             
             let message = 'جزئیات پرداخت سود طرح:\n\n';
             
+            // Get today's date for comparison
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+            
+            console.log('🔍 Debug - Today\'s date:', todayString);
+            
             // Process phases sequentially to handle async date conversion
             for (const phase of planPhases) {
                 const title = phase.title || phase.phase_name || 'نامشخص';
                 const startDate = phase.start_date ? await this.convertToSolarCalendar(phase.start_date) : 'نامشخص';
                 const percent = phase.percent || phase.percentage || 'نامشخص';
-                const status = this.mapStatusToPersian(phase.status);
                 
-                // Use checkmark for done status, circle for others
-                const statusIcon = phase.status === 'done' ? '✅' : '🟡';
+                // Debug logging
+                console.log('🔍 Debug - Phase:', {
+                    title: title,
+                    originalStartDate: phase.start_date,
+                    status: phase.status,
+                    todayString: todayString,
+                    comparison: phase.start_date <= todayString
+                });
+                
+                // Determine status based on phase.status and date comparison
+                let finalStatus, statusIcon;
+                
+                // More robust date comparison
+                let isDateDue = false;
+                if (phase.start_date) {
+                    try {
+                        // Convert both dates to Date objects for proper comparison
+                        const phaseDate = new Date(phase.start_date);
+                        const todayDate = new Date(todayString);
+                        
+                        // Reset time to start of day for fair comparison
+                        phaseDate.setHours(0, 0, 0, 0);
+                        todayDate.setHours(0, 0, 0, 0);
+                        
+                        isDateDue = phaseDate <= todayDate;
+                        
+                        console.log('🔍 Debug - Date comparison:', {
+                            phaseDate: phaseDate.toISOString(),
+                            todayDate: todayDate.toISOString(),
+                            isDateDue: isDateDue
+                        });
+                    } catch (error) {
+                        console.error('Error comparing dates:', error);
+                        isDateDue = false;
+                    }
+                }
+                
+                if (phase.status === 'done') {
+                    finalStatus = 'انجام شده';
+                    statusIcon = '✅';
+                } else if (phase.status === 'in_progress' && isDateDue) {
+                    finalStatus = 'در حال انجام';
+                    statusIcon = '🔵';
+                } else {
+                    finalStatus = 'سررسید نشده';
+                    statusIcon = '🟡';
+                }
+                
+                // Add special text for specific title
+                let percentText = `${percent} درصد`;
+                if (title === 'واریز سود چهارم و بازپرداخت سرمایه') {
+                    percentText += ' + بازگشت اصل سرمایه';
+                }
+                
                 message += `${statusIcon} ${title}\n`;
                 message += `▪️ تاریخ: ${startDate}\n`;
-                message += `▪️ میزان سود: ${percent} درصد\n`;
-                message += `▪️ وضعیت: ${status}\n\n`;
+                message += `▪️ میزان سود: ${percentText}\n`;
+                message += `▪️ وضعیت: ${finalStatus}\n\n`;
             }
             
-            message += 'اگر تاریخ واریز سودتان امروز است پرداختتان در حال پردازش است و چون شبا میشود طی ۲۴ ساعت آینده به حسابتان واریز خواهد شد.\n';
-            message += 'جهت بررسی جزئیات تراکنش هر مرحله سود روی آن کلیک کنید';
+            // Add menu items
+            message += 'جهت کسب اطلاعات بیشتر یکی از گزینه های یر انتخاب کنید\n\n';
             
             return message;
         }
